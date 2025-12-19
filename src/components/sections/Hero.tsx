@@ -104,7 +104,7 @@ const Hero: React.FC = () => {
              transition={{ delay: 1 }}
              className="text-lg md:text-xl font-medium leading-relaxed opacity-80"
            >
-             {metadata.hero.description}
+             Crafting digital ecosystems with a focus on <span className="underline decoration-2 underline-offset-4 font-bold">minimalism</span> and <span className="underline decoration-2 underline-offset-4 font-bold">performance</span>.
            </motion.p>
            <div className="flex gap-3 mt-6">
              {/* Note: Icons are still hardcoded as they are React components, but labels come from metadata if desired, 

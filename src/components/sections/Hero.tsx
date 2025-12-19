@@ -1,12 +1,9 @@
 import React from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { ArrowDown, Code, Database, Globe } from 'lucide-react';
 import logo from '../../assets/logo.jpg';
 
 const Hero: React.FC = () => {
-  const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, 150]);
-  
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -18,138 +15,148 @@ const Hero: React.FC = () => {
 
   return (
     <section 
-      className="relative min-h-screen flex flex-col justify-center px-4 md:px-8 bg-[#F0F0F0] dark:bg-[#0A0A0A] text-black dark:text-white overflow-hidden transition-colors duration-500 group"
+      className="relative min-h-screen flex flex-col justify-between px-6 md:px-12 bg-white dark:bg-black text-black dark:text-white overflow-hidden transition-colors duration-500 pt-32 pb-12"
       onMouseMove={handleMouseMove}
     >
-      {/* Dynamic Background Grid */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:2rem_2rem]"></div>
+      {/* Background Grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
       </div>
 
-      {/* Spotlight (Blue Tint) */}
+      {/* Spotlight (White/Gray Tint) */}
       <motion.div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100 hidden dark:block"
         style={{
           background: useMotionTemplate`
             radial-gradient(
               600px circle at ${mouseX}px ${mouseY}px,
-              rgba(0, 87, 255, 0.15),
+              rgba(255, 255, 255, 0.08),
               transparent 80%
             )
           `,
         }}
       />
 
-      <div className="relative z-10 max-w-[90rem] mx-auto w-full pt-20">
-        {/* Architectural Header Elements */}
-        <div className="absolute top-0 right-0 hidden md:flex flex-col items-end gap-1 text-[10px] font-mono tracking-widest opacity-50">
-           <span>COORD: 12.9716° N, 77.5946° E</span>
-           <span>EST. 2025</span>
+      {/* Top Meta Info */}
+      <div className="relative z-10 flex justify-between items-start text-xs font-mono uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-6 mb-12">
+        <div className="flex flex-col gap-1">
+          <span className="font-bold">Software Engineer</span>
+          <span className="opacity-50">Full Stack & AI</span>
         </div>
+        <div className="flex flex-col gap-1 text-right">
+          <span>Bengaluru, IN</span>
+          <span className="opacity-50">12.97° N / 77.59° E</span>
+        </div>
+      </div>
 
-        {/* Main Title - Swiss Style Typography */}
-        <div className="flex flex-col gap-[-1rem] select-none cursor-default mix-blend-difference dark:mix-blend-normal">
-           <div className="overflow-hidden">
+      {/* Main Typography Block */}
+      <div className="relative z-10 flex-1 flex flex-col justify-center">
+         
+         {/* Line 1 */}
+         <div className="overflow-hidden border-b border-black/10 dark:border-white/10">
+           <motion.h1 
+             initial={{ y: "100%" }}
+             animate={{ y: 0 }}
+             transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
+             className="text-[14vw] leading-[0.85] font-black tracking-tighter"
+           >
+             ABHISHEK
+           </motion.h1>
+         </div>
+
+         {/* Line 2 */}
+         <div className="flex items-stretch border-b border-black/10 dark:border-white/10">
+           {/* Inverted Box "K." */}
+           <motion.div 
+             initial={{ width: 0 }}
+             animate={{ width: "auto" }}
+             transition={{ duration: 1, delay: 0.2, ease: "circOut" }}
+             className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden"
+           >
+             <span className="text-[14vw] leading-[0.85] font-black tracking-tighter text-white dark:text-black whitespace-nowrap">
+               K.
+             </span>
+           </motion.div>
+
+           {/* Remaining Text "YADAV" */}
+           <div className="flex-1 overflow-hidden pl-2 md:pl-6">
              <motion.h1 
-               initial={{ y: 200, skewY: 10 }}
-               animate={{ y: 0, skewY: 0 }}
-               transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-               className="text-[14vw] leading-[0.8] font-black tracking-tighter text-black dark:text-white"
+               initial={{ y: "100%" }}
+               animate={{ y: 0 }}
+               transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
+               className="text-[14vw] leading-[0.85] font-black tracking-tighter"
              >
-               ABHISHEK
+               YADAV
              </motion.h1>
            </div>
-           
-           <div className="flex items-center gap-4 md:gap-8 -mt-2 md:-mt-6">
-             <motion.div 
-               initial={{ width: 0 }}
-               animate={{ width: "auto" }}
-               transition={{ duration: 1, delay: 0.4, ease: "circOut" }}
-               className="h-[8vw] bg-[#0057FF] flex items-center justify-center overflow-hidden px-6 md:px-12"
-             >
-               <span className="text-white font-bold text-xl md:text-5xl tracking-tighter whitespace-nowrap">
-                 K. YADAV
-               </span>
-             </motion.div>
-             
-             <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="hidden md:block h-[1px] flex-1 bg-current opacity-20"
-             />
-             
-             <motion.p 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ delay: 1 }}
-               className="hidden md:block text-xs font-mono max-w-[200px] leading-tight opacity-60"
-             >
-               FULL STACK ENGINEER <br />
-               AI & AUTOMATION SPECIALIST
-             </motion.p>
+         </div>
+
+      </div>
+
+      {/* Bottom Layout */}
+      <div className="relative z-10 mt-16 grid grid-cols-1 md:grid-cols-12 gap-8 items-end">
+        
+        {/* Description */}
+        <div className="col-span-1 md:col-span-5">
+           <motion.p 
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ delay: 1 }}
+             className="text-lg md:text-xl font-medium leading-relaxed opacity-80"
+           >
+             Crafting digital ecosystems with a focus on <span className="underline decoration-2 underline-offset-4">minimalism</span> and <span className="underline decoration-2 underline-offset-4">performance</span>.
+           </motion.p>
+           <div className="flex gap-3 mt-6">
+             <TechBadge icon={<Code size={14} />} text="Dev" />
+             <TechBadge icon={<Database size={14} />} text="Data" />
+             <TechBadge icon={<Globe size={14} />} text="Web" />
            </div>
         </div>
 
-        {/* Bottom Interaction Area */}
-        <div className="mt-24 md:mt-32 flex flex-col md:flex-row justify-between items-end gap-12">
-          <div className="flex flex-col gap-6">
-             <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ delay: 1.2 }}
-               className="flex gap-4"
-             >
-               <TechBadge icon={<Code size={16} />} text="DEVELOPMENT" />
-               <TechBadge icon={<Database size={16} />} text="ARCHITECTURE" />
-               <TechBadge icon={<Globe size={16} />} text="DESIGN" />
-             </motion.div>
-             <motion.p 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               transition={{ delay: 1.4 }}
-               className="text-lg md:text-2xl font-medium max-w-xl leading-snug"
-             >
-               Transforming complex problems into <span className="text-[#0057FF]">elegant solutions</span>. 
-               Building the future of web with precision and passion.
-             </motion.p>
-          </div>
+        {/* Spacer */}
+        <div className="hidden md:block md:col-span-3"></div>
 
-          <div className="flex flex-col items-end gap-4">
-            <motion.a 
-                href="#work"
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-4 bg-[#0057FF] text-white px-10 py-5 rounded-none font-bold text-lg tracking-wider hover:bg-blue-600 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
-            >
-                VIEW PROJECTS
-                <ArrowDown size={24} />
-            </motion.a>
-            <div className="flex items-center gap-2 text-xs font-bold tracking-widest uppercase opacity-60">
-                 <img src={logo} alt="Logo" className="w-6 h-6 rounded-full grayscale" />
-                 <span>© 2025</span>
-            </div>
+        {/* CTA & Copyright */}
+        <div className="col-span-1 md:col-span-4 flex flex-col items-start md:items-end gap-6">
+          <motion.a 
+            href="#work"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-4 bg-black dark:bg-white text-white dark:text-black px-8 py-4 rounded-full font-bold text-sm tracking-widest uppercase hover:opacity-80 transition-opacity"
+          >
+            Selected Works
+            <ArrowDown size={18} />
+          </motion.a>
+          
+          <div className="flex items-center gap-3 text-xs font-mono uppercase opacity-50">
+             <img src={logo} alt="Logo" className="w-6 h-6 rounded-full grayscale" />
+             <span>© 2025 Portfolio</span>
           </div>
         </div>
+
       </div>
 
-      {/* Vertical Marquee */}
-      <div className="absolute top-0 right-0 h-full w-24 hidden xl:flex flex-col items-center justify-center border-l border-zinc-200 dark:border-zinc-800">
-        <motion.div 
-          style={{ y }} 
-          className="whitespace-nowrap -rotate-90 text-xs font-mono tracking-[0.2em] opacity-30"
-        >
-          SCROLL TO EXPLORE — SCROLL TO EXPLORE — SCROLL TO EXPLORE
-        </motion.div>
+      {/* Vertical Side Text */}
+      <div className="absolute top-1/2 left-6 md:left-12 -translate-y-1/2 hidden xl:block">
+         <div className="writing-vertical-rl rotate-180 text-xs font-mono tracking-[0.3em] opacity-30">
+           SCROLL TO EXPLORE
+         </div>
       </div>
+      
+      {/* Styles */}
+      <style>{`
+        .writing-vertical-rl {
+          writing-mode: vertical-rl;
+        }
+      `}</style>
     </section>
   );
 };
 
 const TechBadge: React.FC<{ icon: React.ReactNode, text: string }> = ({ icon, text }) => (
-  <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs font-bold tracking-wider uppercase shadow-sm">
+  <div className="flex items-center gap-2 px-3 py-1 bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/10 rounded-full text-[10px] font-bold uppercase tracking-wider">
     {icon}
     <span>{text}</span>
   </div>

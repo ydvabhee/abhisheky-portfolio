@@ -1,121 +1,97 @@
-import React, { useRef } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, MapPin } from 'lucide-react';
 import metadata from '../../data/metadata.json';
 
 const Work: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
-
-  const scaleY = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
   return (
-    <section id="work" className="py-24 px-4 md:px-8 bg-white dark:bg-black text-black dark:text-white relative overflow-hidden transition-colors duration-500 border-t border-black/10 dark:border-white/10">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center mb-24">
+    <section id="work" className="py-32 px-6 md:px-12 bg-white dark:bg-black text-black dark:text-white transition-colors duration-500 border-t border-black/10 dark:border-white/10">
+      <div className="max-w-[100rem] mx-auto">
+        
+        {/* Header */}
+        <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-black/10 dark:border-white/10 pb-8">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl md:text-8xl font-black tracking-tighter text-center mb-6 uppercase"
+            className="text-[12vw] md:text-[8vw] font-black tracking-tighter leading-[0.8] uppercase"
           >
             {metadata.work.title}
           </motion.h2>
-          <motion.div 
-            initial={{ width: 0 }}
-            whileInView={{ width: 100 }}
-            viewport={{ once: true }}
-            className="h-2 bg-black dark:bg-white"
-          />
-        </div>
-
-        <div ref={containerRef} className="relative">
-          {/* Timeline Line */}
-          <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-[2px] bg-zinc-100 dark:bg-zinc-900 -translate-x-1/2">
-            <motion.div 
-              style={{ scaleY, originY: 0 }}
-              className="absolute top-0 left-0 w-full h-full bg-black dark:bg-white"
-            />
-          </div>
-
-          <div className="space-y-12 md:space-y-32">
-            {metadata.work.experiences.map((exp, index) => (
-              <TimelineItem key={exp.id} experience={exp} index={index} />
-            ))}
+          <div className="text-right hidden md:block pb-2">
+            <span className="text-xs font-mono uppercase tracking-widest opacity-50">Career History</span>
           </div>
         </div>
+
+        {/* Experience List (Grid Layout) */}
+        <div className="flex flex-col">
+          {metadata.work.experiences.map((exp, index) => (
+            <ExperienceItem key={exp.id} experience={exp} index={index} />
+          ))}
+        </div>
+
       </div>
     </section>
   );
 };
 
-// Update type definition for props if needed, but since we are mapping directly from JSON, 
-// we can infer or define an interface matching the JSON structure.
-// For simplicity in this refactor, I'll inline the type or use 'any' implicitly if strictness allows, 
-// but let's be better and define a quick interface or use typeof metadata.work.experiences[0]
 type Experience = typeof metadata.work.experiences[0];
 
-const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ experience, index }) => {
-  const isEven = index % 2 === 0;
-
+const ExperienceItem: React.FC<{ experience: Experience, index: number }> = ({ experience, index }) => {
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className={`relative flex flex-col md:flex-row gap-12 ${isEven ? 'md:flex-row-reverse' : ''}`}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="group border-b border-black/10 dark:border-white/10 py-12 md:py-16 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-4 hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-300 -mx-4 px-4 md:-mx-8 md:px-8"
     >
-      {/* Timeline Node */}
-      <div className="absolute left-[19px] md:left-1/2 top-0 w-5 h-5 rounded-full bg-black dark:bg-white border-[4px] border-white dark:border-black z-10 -translate-x-1/2 md:translate-y-2 box-content" />
+      
+      {/* Col 1: Period & Location (Desktop: 3 cols) */}
+      <div className="md:col-span-3 flex flex-col gap-2">
+        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest opacity-60">
+           <Calendar size={12} />
+           <span>{experience.period}</span>
+        </div>
+        <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest opacity-40">
+           <MapPin size={12} />
+           <span>{experience.location}</span>
+        </div>
+      </div>
 
-      {/* Content Side */}
-      <div className={`flex-1 pl-16 md:pl-0 ${isEven ? 'md:pr-32 md:text-right' : 'md:pl-32'}`}>
-        <div className="flex flex-col gap-4 group">
-          <div>
-             <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-none mb-2 hover:opacity-50 transition-opacity duration-300">{experience.company}</h3>
-             <h4 className="text-xl md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-widest text-xs md:text-sm">{experience.role}</h4>
-          </div>
-          
-          <div className={`flex flex-wrap gap-6 text-[10px] font-mono opacity-60 uppercase tracking-widest ${isEven ? 'md:justify-end' : ''}`}>
-            <span className="flex items-center gap-2">
-              <Calendar size={14} /> {experience.period}
-            </span>
-            <span className="flex items-center gap-2">
-              <MapPin size={14} /> {experience.location}
-            </span>
-          </div>
+      {/* Col 2: Company & Role (Desktop: 4 cols) */}
+      <div className="md:col-span-4 flex flex-col gap-1">
+         <h3 className="text-3xl md:text-4xl font-bold tracking-tight uppercase group-hover:translate-x-2 transition-transform duration-300 ease-out">
+           {experience.company}
+         </h3>
+         <h4 className="text-lg md:text-xl font-medium opacity-60">
+           {experience.role}
+         </h4>
+      </div>
 
-          <p className="text-lg leading-relaxed opacity-80 max-w-lg">
+      {/* Col 3: Description & Tech (Desktop: 5 cols) */}
+      <div className="md:col-span-5 flex flex-col gap-6">
+         <div className="opacity-80 text-base md:text-lg leading-relaxed space-y-2">
             {experience.description.map((point, i) => (
-              <span key={i} className="block mb-2 last:mb-0">
-                {point}
-              </span>
+              <p key={i} className="flex gap-3">
+                <span className="opacity-30 mt-1.5 w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                <span>{point}</span>
+              </p>
             ))}
-          </p>
+         </div>
 
-          <div className={`flex flex-wrap gap-2 mt-4 ${isEven ? 'md:justify-end' : ''}`}>
+         <div className="flex flex-wrap gap-2 pt-2">
             {experience.tech.map((tech, i) => (
               <span 
                 key={i} 
-                className="px-3 py-1 text-[10px] font-bold border border-black/10 dark:border-white/10 rounded-sm uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-default"
+                className="px-3 py-1 text-[10px] font-bold border border-black/10 dark:border-white/10 rounded-full uppercase tracking-wider hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-default"
               >
                 {tech}
               </span>
             ))}
-          </div>
-        </div>
+         </div>
       </div>
 
-      {/* Empty Side for layout balance on desktop */}
-      <div className="hidden md:block flex-1" />
     </motion.div>
   );
 };

@@ -4,14 +4,14 @@ import { ArrowUpRight } from 'lucide-react';
 
 const Contact: React.FC = () => {
   return (
-    <section id="contact" className="py-32 px-8 bg-white text-black border-t border-zinc-200">
+    <section id="contact" className="py-32 px-8 bg-white dark:bg-black text-black dark:text-white border-t border-black/10 dark:border-white/10 transition-colors duration-500">
       <div className="flex flex-col items-center text-center">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-[8vw] font-black leading-none tracking-tighter mb-12"
+          className="text-[12vw] font-black leading-none tracking-tighter mb-12 uppercase"
         >
-          LET'S WORK <br />TOGETHER
+          Let's work <br />together
         </motion.h2>
         
         <a 
@@ -21,14 +21,14 @@ const Contact: React.FC = () => {
           yk.abhee@gmail.com
         </a>
 
-        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-zinc-100">
+        <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-black/10 dark:border-white/10">
           <div className="flex space-x-8">
-            <a href="https://www.linkedin.com/in/ydvabhee" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm font-bold hover:opacity-50">
-              LINKEDIN <ArrowUpRight size={14} />
+            <a href="https://www.linkedin.com/in/ydvabhee" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-bold tracking-widest hover:opacity-50 uppercase">
+              LinkedIn <ArrowUpRight size={14} />
             </a>
           </div>
-          <p className="text-xs opacity-40 uppercase tracking-widest">
-            © 2025 ABHISHEK K YADAV. ALL RIGHTS RESERVED.
+          <p className="text-[10px] opacity-40 uppercase tracking-[0.3em]">
+            © 2025 Abhishek K Yadav. All rights reserved.
           </p>
         </div>
       </div>

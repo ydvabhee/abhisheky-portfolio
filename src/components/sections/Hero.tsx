@@ -138,13 +138,6 @@ const Hero: React.FC = () => {
 
       </div>
 
-      {/* Vertical Side Text */}
-      <div className="absolute top-1/2 left-6 md:left-12 -translate-y-1/2 hidden xl:block">
-         <div className="writing-vertical-rl rotate-180 text-xs font-mono tracking-[0.3em] opacity-30">
-           SCROLL TO EXPLORE
-         </div>
-      </div>
-      
       {/* Styles */}
       <style>{`
         .writing-vertical-rl {

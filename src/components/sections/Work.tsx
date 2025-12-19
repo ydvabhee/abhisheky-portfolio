@@ -17,7 +17,7 @@ const Work: React.FC = () => {
   });
 
   return (
-    <section id="work" className="py-24 px-4 md:px-8 bg-white dark:bg-[#0A0A0A] text-black dark:text-white relative overflow-hidden transition-colors duration-500">
+    <section id="work" className="py-24 px-4 md:px-8 bg-white dark:bg-black text-black dark:text-white relative overflow-hidden transition-colors duration-500 border-t border-black/10 dark:border-white/10">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col items-center mb-24">
           <motion.h2 
@@ -32,16 +32,16 @@ const Work: React.FC = () => {
             initial={{ width: 0 }}
             whileInView={{ width: 100 }}
             viewport={{ once: true }}
-            className="h-2 bg-[#0057FF]"
+            className="h-2 bg-black dark:bg-white"
           />
         </div>
 
         <div ref={containerRef} className="relative">
           {/* Timeline Line */}
-          <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-[2px] bg-zinc-200 dark:bg-zinc-800 -translate-x-1/2">
+          <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-[2px] bg-zinc-100 dark:bg-zinc-900 -translate-x-1/2">
             <motion.div 
               style={{ scaleY, originY: 0 }}
-              className="absolute top-0 left-0 w-full h-full bg-[#0057FF]"
+              className="absolute top-0 left-0 w-full h-full bg-black dark:bg-white"
             />
           </div>
 
@@ -68,22 +68,22 @@ const TimelineItem: React.FC<{ experience: typeof experiences[0], index: number 
       className={`relative flex flex-col md:flex-row gap-8 ${isEven ? 'md:flex-row-reverse' : ''}`}
     >
       {/* Timeline Node */}
-      <div className="absolute left-[19px] md:left-1/2 top-0 w-5 h-5 rounded-full bg-[#0057FF] border-[4px] border-white dark:border-[#0A0A0A] z-10 -translate-x-1/2 md:translate-y-2 box-content" />
+      <div className="absolute left-[19px] md:left-1/2 top-0 w-5 h-5 rounded-full bg-black dark:bg-white border-[4px] border-white dark:border-black z-10 -translate-x-1/2 md:translate-y-2 box-content" />
 
       {/* Content Side */}
       <div className={`flex-1 pl-12 md:pl-0 ${isEven ? 'md:pr-20 md:text-right' : 'md:pl-20'}`}>
         <div className="flex flex-col gap-4 group">
           <div>
-             <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-none mb-2 group-hover:text-[#0057FF] transition-colors duration-300">{experience.company}</h3>
-             <h4 className="text-xl md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium">{experience.role}</h4>
+             <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-none mb-2 hover:opacity-50 transition-opacity duration-300">{experience.company}</h3>
+             <h4 className="text-xl md:text-2xl text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-widest text-xs md:text-sm">{experience.role}</h4>
           </div>
           
-          <div className={`flex flex-wrap gap-6 text-sm font-mono opacity-60 uppercase tracking-wider ${isEven ? 'md:justify-end' : ''}`}>
+          <div className={`flex flex-wrap gap-6 text-[10px] font-mono opacity-60 uppercase tracking-widest ${isEven ? 'md:justify-end' : ''}`}>
             <span className="flex items-center gap-2">
-              <Calendar size={16} className="text-[#0057FF]" /> {experience.period}
+              <Calendar size={14} /> {experience.period}
             </span>
             <span className="flex items-center gap-2">
-              <MapPin size={16} className="text-[#0057FF]" /> {experience.location}
+              <MapPin size={14} /> {experience.location}
             </span>
           </div>
 
@@ -99,7 +99,7 @@ const TimelineItem: React.FC<{ experience: typeof experiences[0], index: number 
             {experience.tech.map((tech, i) => (
               <span 
                 key={i} 
-                className="px-3 py-1 text-xs font-bold border border-zinc-200 dark:border-zinc-800 rounded-sm uppercase tracking-wider hover:bg-[#0057FF] hover:text-white hover:border-[#0057FF] transition-colors cursor-default"
+                className="px-3 py-1 text-[10px] font-bold border border-black/10 dark:border-white/10 rounded-sm uppercase tracking-widest hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-default"
               >
                 {tech}
               </span>

@@ -4,7 +4,7 @@
     "description": "Portfolio of Abhishek K Yadav, Software Engineer"
   },
   "navbar": {
-    "logo": "/assets/logo.jpg",
+    "logo": "src/assets/logo.jpeg",
     "links": [
       { "label": "WORK", "href": "#work" },
       { "label": "ABOUT", "href": "#about" },
@@ -21,8 +21,8 @@
     "lastName": "YADAV",
     "description": "Crafting digital ecosystems with a focus on minimalism and performance.",
     "tags": ["Dev", "Data", "Web"],
-    "cta": "Selected Works",
-    "footerText": "© 2025 Portfolio"
+    "cta": "Work Experience",
+    "footerText": ""
   },
   "about": {
     "title": "About the Engineer",

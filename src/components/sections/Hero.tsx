@@ -133,13 +133,6 @@ const Hero: React.FC = () => {
             {metadata.hero.cta}
             <ArrowDown size={18} />
           </motion.a>
-          
-          <div className="flex items-center gap-3 text-xs font-mono uppercase opacity-50">
-             <div className="w-6 h-6 rounded-full overflow-hidden">
-               <img src={metadata.navbar.logo} alt="Logo" className="w-full h-full object-cover grayscale" />
-             </div>
-             <span>{metadata.hero.footerText}</span>
-          </div>
         </div>
 
       </div>

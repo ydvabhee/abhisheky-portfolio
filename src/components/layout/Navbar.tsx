@@ -11,7 +11,9 @@ const Navbar: React.FC = () => {
       className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-8 py-6 bg-white/80 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white transition-colors duration-300"
     >
       <div className="flex items-center gap-2">
-        <img src={metadata.navbar.logo} alt="Logo" className="h-10 w-auto rounded-full" />
+        <div className="rounded-full overflow-hidden w-10 h-10">
+          <img src={metadata.navbar.logo} alt="Logo" className="w-full h-full object-cover" />
+        </div>
       </div>
       <div className="flex items-center space-x-8">
         <div className="flex space-x-8 text-sm font-medium">

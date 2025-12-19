@@ -71,13 +71,13 @@ const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ exp
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className={`relative flex flex-col md:flex-row gap-8 ${isEven ? 'md:flex-row-reverse' : ''}`}
+      className={`relative flex flex-col md:flex-row gap-12 ${isEven ? 'md:flex-row-reverse' : ''}`}
     >
       {/* Timeline Node */}
       <div className="absolute left-[19px] md:left-1/2 top-0 w-5 h-5 rounded-full bg-black dark:bg-white border-[4px] border-white dark:border-black z-10 -translate-x-1/2 md:translate-y-2 box-content" />
 
       {/* Content Side */}
-      <div className={`flex-1 pl-12 md:pl-0 ${isEven ? 'md:pr-20 md:text-right' : 'md:pl-20'}`}>
+      <div className={`flex-1 pl-16 md:pl-0 ${isEven ? 'md:pr-24 md:text-right' : 'md:pl-24'}`}>
         <div className="flex flex-col gap-4 group">
           <div>
              <h3 className="text-4xl md:text-5xl font-bold tracking-tight leading-none mb-2 hover:opacity-50 transition-opacity duration-300">{experience.company}</h3>

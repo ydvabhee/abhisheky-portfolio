@@ -49,7 +49,7 @@ const Navbar: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white dark:bg-black pt-24 px-6 md:hidden flex flex-col gap-8"
+            className="fixed inset-0 z-40 bg-white dark:bg-black text-black dark:text-white pt-24 px-6 md:hidden flex flex-col gap-8 transition-colors duration-300"
           >
             <div className="flex flex-col gap-6 text-2xl font-black uppercase tracking-tighter">
               {metadata.navbar.links.map((link, index) => (

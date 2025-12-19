@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { ArrowDown, Code, Database, Globe } from 'lucide-react';
-import logo from '../../assets/logo.jpg';
+import metadata from '../../data/metadata.json';
 
 const Hero: React.FC = () => {
   const mouseX = useMotionValue(0);
@@ -40,12 +40,12 @@ const Hero: React.FC = () => {
       {/* Top Meta Info */}
       <div className="relative z-10 flex justify-between items-start text-xs font-mono uppercase tracking-widest border-b border-black/10 dark:border-white/10 pb-6 mb-12">
         <div className="flex flex-col gap-1">
-          <span className="font-bold">Software Engineer</span>
-          <span className="opacity-50">Full Stack & AI</span>
+          <span className="font-bold">{metadata.hero.role}</span>
+          <span className="opacity-50">{metadata.hero.subRole}</span>
         </div>
         <div className="flex flex-col gap-1 text-right">
-          <span>Bengaluru, IN</span>
-          <span className="opacity-50">12.97° N / 77.59° E</span>
+          <span>{metadata.hero.location}</span>
+          <span className="opacity-50">{metadata.hero.coordinates}</span>
         </div>
       </div>
 
@@ -60,7 +60,7 @@ const Hero: React.FC = () => {
              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
              className="text-[14vw] leading-[0.85] font-black tracking-tighter"
            >
-             ABHISHEK
+             {metadata.hero.firstName}
            </motion.h1>
          </div>
 
@@ -74,7 +74,7 @@ const Hero: React.FC = () => {
              className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden"
            >
              <span className="text-[14vw] leading-[0.85] font-black tracking-tighter text-white dark:text-black whitespace-nowrap">
-               K.
+               {metadata.hero.middleName}
              </span>
            </motion.div>
 
@@ -86,7 +86,7 @@ const Hero: React.FC = () => {
                transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
                className="text-[14vw] leading-[0.85] font-black tracking-tighter"
              >
-               YADAV
+               {metadata.hero.lastName}
              </motion.h1>
            </div>
          </div>
@@ -104,12 +104,16 @@ const Hero: React.FC = () => {
              transition={{ delay: 1 }}
              className="text-lg md:text-xl font-medium leading-relaxed opacity-80"
            >
-             Crafting digital ecosystems with a focus on <span className="underline decoration-2 underline-offset-4">minimalism</span> and <span className="underline decoration-2 underline-offset-4">performance</span>.
+             {metadata.hero.description}
            </motion.p>
            <div className="flex gap-3 mt-6">
-             <TechBadge icon={<Code size={14} />} text="Dev" />
-             <TechBadge icon={<Database size={14} />} text="Data" />
-             <TechBadge icon={<Globe size={14} />} text="Web" />
+             {/* Note: Icons are still hardcoded as they are React components, but labels come from metadata if desired, 
+                 or we can map if we have a string-to-icon map. For now, hardcoding icons but using metadata tags logic if we wanted.
+                 Since icons are specific, I'll keep the icons but use metadata tags for text if available, or just keep as is if metadata.hero.tags matches.
+             */}
+             <TechBadge icon={<Code size={14} />} text={metadata.hero.tags[0]} />
+             <TechBadge icon={<Database size={14} />} text={metadata.hero.tags[1]} />
+             <TechBadge icon={<Globe size={14} />} text={metadata.hero.tags[2]} />
            </div>
         </div>
 
@@ -126,13 +130,13 @@ const Hero: React.FC = () => {
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-4 bg-black dark:bg-white text-white dark:text-black px-8 py-4 rounded-full font-bold text-sm tracking-widest uppercase hover:opacity-80 transition-opacity"
           >
-            Selected Works
+            {metadata.hero.cta}
             <ArrowDown size={18} />
           </motion.a>
           
           <div className="flex items-center gap-3 text-xs font-mono uppercase opacity-50">
-             <img src={logo} alt="Logo" className="w-6 h-6 rounded-full grayscale" />
-             <span>© 2025 Portfolio</span>
+             <img src={metadata.navbar.logo} alt="Logo" className="w-6 h-6 rounded-full grayscale" />
+             <span>{metadata.hero.footerText}</span>
           </div>
         </div>
 

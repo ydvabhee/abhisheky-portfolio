@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import metadata from '../../data/metadata.json';
 
 const Contact: React.FC = () => {
   return (
@@ -9,26 +10,26 @@ const Contact: React.FC = () => {
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="text-[12vw] font-black leading-none tracking-tighter mb-12 uppercase"
+          className="text-[12vw] font-black leading-none tracking-tighter mb-12 uppercase whitespace-pre-line"
         >
-          Let's work <br />together
+          {metadata.contact.title}
         </motion.h2>
         
         <a 
-          href="mailto:yk.abhee@gmail.com" 
+          href={`mailto:${metadata.contact.email}`}
           className="text-3xl md:text-5xl font-medium hover:line-through transition-all mb-20 block"
         >
-          yk.abhee@gmail.com
+          {metadata.contact.email}
         </a>
 
         <div className="w-full flex flex-col md:flex-row justify-between items-center gap-8 pt-12 border-t border-black/10 dark:border-white/10">
           <div className="flex space-x-8">
-            <a href="https://www.linkedin.com/in/ydvabhee" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-bold tracking-widest hover:opacity-50 uppercase">
-              LinkedIn <ArrowUpRight size={14} />
+            <a href={metadata.contact.linkedin.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs font-bold tracking-widest hover:opacity-50 uppercase">
+              {metadata.contact.linkedin.label} <ArrowUpRight size={14} />
             </a>
           </div>
           <p className="text-[10px] opacity-40 uppercase tracking-[0.3em]">
-            © 2025 Abhishek K Yadav. All rights reserved.
+            {metadata.contact.copyright}
           </p>
         </div>
       </div>

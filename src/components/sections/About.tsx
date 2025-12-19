@@ -1,5 +1,5 @@
 import React from 'react';
-import profileImage from '../../assets/profile.jpg';
+import metadata from '../../data/metadata.json';
 
 const About: React.FC = () => {
   return (
@@ -7,42 +7,37 @@ const About: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
         <div className="aspect-[3/4] bg-zinc-100 dark:bg-zinc-900 overflow-hidden group border border-black/5 dark:border-white/5">
           <img 
-            src={profileImage}
+            src={metadata.about.profileImage}
             alt="Abhishek K Yadav" 
             className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out"
           />
         </div>
         <div className="flex flex-col justify-center">
-          <h2 className="text-sm font-bold tracking-[0.2em] mb-8 opacity-50 uppercase">About the Engineer</h2>
+          <h2 className="text-sm font-bold tracking-[0.2em] mb-8 opacity-50 uppercase">{metadata.about.title}</h2>
           <p className="text-4xl font-medium leading-tight tracking-tight mb-8">
-            I AM A SOFTWARE ENGINEER WITH A PASSION FOR NURTURING GROWTH IN CODE AND LIFE.
+            {metadata.about.headline}
           </p>
           <div className="space-y-6 text-lg opacity-70 dark:opacity-60 max-w-lg">
-            <p>
-              Hi, I’m Abhishek. My journey began in a hometown garden, where I learned the value of nurturing growth both in life and in my career. Just as in gardening, I approach my work with curiosity, always learning, adapting, and striving to make things grow.
-            </p>
-            <p>
-              I thrive on finding the right solutions to make everything click, and I take pride in building strong relationships with the people I work with. For me, growth is just as much about helping others succeed as it is about achieving my own goals.
-            </p>
+            {metadata.about.description.map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
           </div>
           
           <div className="mt-12 grid grid-cols-2 gap-8 border-t border-black/10 dark:border-white/10 pt-8">
             <div>
-              <h4 className="text-xs font-black mb-4 uppercase tracking-widest opacity-40">Skills</h4>
+              <h4 className="text-xs font-black mb-4 uppercase tracking-widest opacity-40">{metadata.about.skillsTitle}</h4>
               <ul className="text-sm space-y-2 opacity-80">
-                <li>Full-Stack Development</li>
-                <li>AI/ML & LLMs</li>
-                <li>Cloud Infrastructure</li>
-                <li>Automation Tools</li>
+                {metadata.about.skills.map((skill, index) => (
+                  <li key={index}>{skill}</li>
+                ))}
               </ul>
             </div>
             <div>
-              <h4 className="text-xs font-black mb-4 uppercase tracking-widest opacity-40">Certifications</h4>
+              <h4 className="text-xs font-black mb-4 uppercase tracking-widest opacity-40">{metadata.about.certificationsTitle}</h4>
               <ul className="text-sm space-y-2 opacity-80">
-                <li>AWS Fundamentals</li>
-                <li>Front-End Web Dev (React)</li>
-                <li>Bootstrap 4 (Honors)</li>
-                <li>Python Computing</li>
+                {metadata.about.certifications.map((cert, index) => (
+                  <li key={index}>{cert}</li>
+                ))}
               </ul>
             </div>
           </div>

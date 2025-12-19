@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { experiences } from '../../data/experience';
 import { Calendar, MapPin } from 'lucide-react';
+import metadata from '../../data/metadata.json';
 
 const Work: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +26,7 @@ const Work: React.FC = () => {
             viewport={{ once: true }}
             className="text-5xl md:text-8xl font-black tracking-tighter text-center mb-6 uppercase"
           >
-            Experience
+            {metadata.work.title}
           </motion.h2>
           <motion.div 
             initial={{ width: 0 }}
@@ -46,7 +46,7 @@ const Work: React.FC = () => {
           </div>
 
           <div className="space-y-12 md:space-y-32">
-            {experiences.map((exp, index) => (
+            {metadata.work.experiences.map((exp, index) => (
               <TimelineItem key={exp.id} experience={exp} index={index} />
             ))}
           </div>
@@ -56,7 +56,13 @@ const Work: React.FC = () => {
   );
 };
 
-const TimelineItem: React.FC<{ experience: typeof experiences[0], index: number }> = ({ experience, index }) => {
+// Update type definition for props if needed, but since we are mapping directly from JSON, 
+// we can infer or define an interface matching the JSON structure.
+// For simplicity in this refactor, I'll inline the type or use 'any' implicitly if strictness allows, 
+// but let's be better and define a quick interface or use typeof metadata.work.experiences[0]
+type Experience = typeof metadata.work.experiences[0];
+
+const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ experience, index }) => {
   const isEven = index % 2 === 0;
 
   return (

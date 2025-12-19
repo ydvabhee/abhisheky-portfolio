@@ -9,7 +9,6 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
-      onAnimationComplete={onComplete}
     >
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
@@ -37,6 +36,7 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
             duration: 1,
             ease: [0.76, 0, 0.24, 1]
           }}
+          onAnimationComplete={onComplete}
         >
           <img 
             src={metadata.navbar.logo} 

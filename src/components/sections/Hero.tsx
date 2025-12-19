@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import logo from '../../assets/logo.jpg';
 
 const Hero: React.FC = () => {
   return (
@@ -113,7 +114,7 @@ const Hero: React.FC = () => {
       
       <div className="flex flex-col md:flex-row justify-between items-center pt-6 text-[10px] md:text-xs font-bold tracking-widest uppercase text-black dark:text-white relative z-20 gap-4 md:gap-0">
          <div className="flex items-center gap-4">
-           <div className="w-8 h-8 rounded-full border-2 border-current flex items-center justify-center text-sm font-black">A</div>
+           <img src={logo} alt="Abhishek Logo" className="w-8 h-8 rounded-full" />
            <span>Based in Bengaluru, India</span>
          </div>
          <div className="opacity-50">

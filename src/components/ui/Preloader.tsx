@@ -23,15 +23,30 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   if (windowSize.width === 0) return null;
 
   // Calculation for target position
-  // Navbar logo center: x = 32px (px-8) + 20px (half width) = 52px
-  // Navbar logo center: y = 24px (py-6) + 20px (half height) = 44px
-  // Preloader center: window.width / 2, window.height / 2
-  const targetX = 52 - windowSize.width / 2;
-  const targetY = 44 - windowSize.height / 2;
+  // Navbar padding: px-6 (24px) for < md (768px), px-8 (32px) for >= md
+  const isDesktop = windowSize.width >= 768;
+  const navPaddingX = isDesktop ? 32 : 24;
+  const navPaddingY = 24; // py-6
+  const logoSize = 40; // w-10
+  const logoHalf = logoSize / 2;
+
+  // Navbar logo center coordinates from top-left
+  const logoCenterX = navPaddingX + logoHalf;
+  const logoCenterY = navPaddingY + logoHalf;
+
+  // Screen center coordinates
+  const screenCenterX = windowSize.width / 2;
+  const screenCenterY = windowSize.height / 2;
+
+  // Distance to move (Target - Start)
+  // Start is Center (0,0 in motion relative to center)
+  // Target is relative to Center
+  const targetX = logoCenterX - screenCenterX;
+  const targetY = logoCenterY - screenCenterY;
 
   // Scale calculation: Target width 40px (w-10), Initial width 128px (w-32)
   // Scale factor = 40 / 128 ≈ 0.3125
-  const scaleFactor = 40 / 128;
+  const scaleFactor = logoSize / 128;
 
   return (
     <motion.div

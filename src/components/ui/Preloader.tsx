@@ -4,48 +4,50 @@ import { motion } from 'framer-motion';
 import metadata from '../../data/metadata.json';
 
 const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [dimension, setDimension] = useState({ 
+    width: 0, 
+    height: 0,
+    breakpointWidth: 0 
+  });
 
   useEffect(() => {
-    // Set initial size
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-
-    // Optional: Handle resize if needed, though preloader is usually short-lived
-    const handleResize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    const updateDimensions = () => {
+      setDimension({
+        width: document.documentElement.clientWidth,
+        height: document.documentElement.clientHeight,
+        breakpointWidth: window.innerWidth
+      });
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
-  // Avoid running calculation until window size is available (client-side)
-  if (windowSize.width === 0) return null;
+  // Avoid running calculation until window size is available
+  if (dimension.width === 0) return null;
 
   // Calculation for target position
   // Navbar padding: px-6 (24px) for < md (768px), px-8 (32px) for >= md
-  const isDesktop = windowSize.width >= 768;
+  const isDesktop = dimension.breakpointWidth >= 768;
   const navPaddingX = isDesktop ? 32 : 24;
   const navPaddingY = 24; // py-6
   const logoSize = 40; // w-10
   const logoHalf = logoSize / 2;
 
-  // Navbar logo center coordinates from top-left
+  // Navbar logo center coordinates from top-left (relative to viewport content area)
   const logoCenterX = navPaddingX + logoHalf;
   const logoCenterY = navPaddingY + logoHalf;
 
-  // Screen center coordinates
-  const screenCenterX = windowSize.width / 2;
-  const screenCenterY = windowSize.height / 2;
+  // Screen center coordinates (relative to visible content area)
+  const screenCenterX = dimension.width / 2;
+  const screenCenterY = dimension.height / 2;
 
   // Distance to move (Target - Start)
-  // Start is Center (0,0 in motion relative to center)
-  // Target is relative to Center
   const targetX = logoCenterX - screenCenterX;
   const targetY = logoCenterY - screenCenterY;
 
   // Scale calculation: Target width 40px (w-10), Initial width 128px (w-32)
-  // Scale factor = 40 / 128 ≈ 0.3125
   const scaleFactor = logoSize / 128;
 
   return (

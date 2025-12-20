@@ -111,8 +111,18 @@ const TextPressure = ({
   useEffect(() => {
     const debouncedSetSize = debounce(setSize, 100);
     debouncedSetSize();
+    
     window.addEventListener('resize', debouncedSetSize);
-    return () => window.removeEventListener('resize', debouncedSetSize);
+    
+    const observer = new ResizeObserver(debouncedSetSize);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      window.removeEventListener('resize', debouncedSetSize);
+      observer.disconnect();
+    };
   }, [setSize]);
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import React from 'react';
 import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { ArrowDown, Code, Database, Globe } from 'lucide-react';
 import metadata from '../../data/metadata.json';
+import TextPressure from '../ui/TextPressure';
 
 const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true }) => {
   const mouseX = useMotionValue(0);
@@ -55,14 +56,24 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
          
          {/* Line 1 */}
          <div className="overflow-hidden border-b border-black/10 dark:border-white/10">
-           <motion.h1 
+           <motion.div 
              initial={{ y: "100%" }}
              animate={startAnimation ? { y: 0 } : { y: "100%" }}
              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-             className="text-[14vw] leading-[0.85] font-black tracking-tighter"
+             className="w-full"
            >
-             {metadata.hero.firstName}
-           </motion.h1>
+             <TextPressure 
+                text={metadata.hero.firstName} 
+                flex={true} 
+                alpha={false} 
+                stroke={false} 
+                width={true} 
+                weight={true} 
+                italic={true} 
+                textColor="currentColor" 
+                minFontSize={24}
+             />
+           </motion.div>
          </div>
 
          {/* Line 2 */}
@@ -81,14 +92,24 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
 
            {/* Remaining Text "YADAV" */}
            <div className="flex-1 overflow-hidden pl-2 md:pl-6">
-             <motion.h1 
+             <motion.div 
                initial={{ y: "100%" }}
                animate={startAnimation ? { y: 0 } : { y: "100%" }}
                transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
-               className="text-[14vw] leading-[0.85] font-black tracking-tighter"
+               className="w-full"
              >
-               {metadata.hero.lastName}
-             </motion.h1>
+               <TextPressure 
+                text={metadata.hero.lastName} 
+                flex={true} 
+                alpha={false} 
+                stroke={false} 
+                width={true} 
+                weight={true} 
+                italic={true} 
+                textColor="currentColor" 
+                minFontSize={24}
+               />
+             </motion.div>
            </div>
          </div>
 
@@ -108,10 +129,6 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
              Crafting digital ecosystems with a focus on <span className="underline decoration-2 underline-offset-4 font-bold">minimalism</span> and <span className="underline decoration-2 underline-offset-4 font-bold">performance</span>.
            </motion.p>
            <div className="flex gap-3 mt-6">
-             {/* Note: Icons are still hardcoded as they are React components, but labels come from metadata if desired, 
-                 or we can map if we have a string-to-icon map. For now, hardcoding icons but using metadata tags logic if we wanted.
-                 Since icons are specific, I'll keep the icons but use metadata tags for text if available, or just keep as is if metadata.hero.tags matches.
-             */}
              <TechBadge icon={<Code size={14} />} text={metadata.hero.tags[0]} />
              <TechBadge icon={<Database size={14} />} text={metadata.hero.tags[1]} />
              <TechBadge icon={<Globe size={14} />} text={metadata.hero.tags[2]} />

@@ -55,10 +55,10 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
       </div>
 
       {/* Main Typography Block */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center gap-6">
+      <div className="relative z-10 flex-1 flex flex-col justify-center items-center gap-6">
          
          {/* Line 1: First Name */}
-         <div className="w-full xl:w-[90%] self-start">
+         <div className="w-full xl:w-[90%] self-center">
            <motion.div 
              initial={{ y: "100%", opacity: 0 }}
              animate={startAnimation ? { y: 0, opacity: 1 } : { y: "100%", opacity: 0 }}
@@ -79,7 +79,7 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
          </div>
 
          {/* Line 2: Middle + Last Name */}
-         <div className="w-full xl:w-[90%] self-start">
+         <div className="w-full xl:w-[90%] self-center">
            <motion.div 
              initial={{ y: "100%", opacity: 0 }}
              animate={startAnimation ? { y: 0, opacity: 1 } : { y: "100%", opacity: 0 }}

@@ -86,11 +86,21 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
              initial={{ width: 0 }}
              animate={startAnimation ? { width: "auto" } : { width: 0 }}
              transition={{ duration: 1, delay: 0.2, ease: "circOut" }}
-             className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden"
+             className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden text-white dark:text-black min-w-[10vw]"
            >
-             <span className="text-[14vw] leading-[0.85] font-black tracking-tighter text-white dark:text-black whitespace-nowrap">
-               {metadata.hero.middleName}
-             </span>
+             <div className="w-full">
+               <TextPressure 
+                  text={metadata.hero.middleName} 
+                  flex={false} 
+                  alpha={false} 
+                  stroke={false} 
+                  width={true} 
+                  weight={true} 
+                  italic={true} 
+                  textColor="currentColor" 
+                  minFontSize={24}
+               />
+             </div>
            </motion.div>
 
            {/* Remaining Text "YADAV" */}

@@ -89,7 +89,8 @@ const TextPressure = ({
 
     const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
 
-    let newFontSize = containerW / (chars.length);
+    // Adjusted font size calculation for better presence
+    let newFontSize = containerW / (chars.length * 0.7);
     newFontSize = Math.max(newFontSize, minFontSize);
 
     setFontSize(newFontSize);
@@ -146,8 +147,9 @@ const TextPressure = ({
 
           const d = dist(mouseRef.current, charCenter);
 
-          const wdth = width ? Math.floor(getAttr(d, maxDist, 50, 200)) : 100;
-          const wght = weight ? Math.floor(getAttr(d, maxDist, 200, 900)) : 400;
+          // Increased base width and weight for "more bold" look
+          const wdth = width ? Math.floor(getAttr(d, maxDist, 100, 200)) : 150;
+          const wght = weight ? Math.floor(getAttr(d, maxDist, 600, 900)) : 700;
           const italVal = italic ? getAttr(d, maxDist, 0, 1).toFixed(2) : 0;
           const alphaVal = alpha ? getAttr(d, maxDist, 0, 1).toFixed(2) : 1;
 
@@ -180,7 +182,8 @@ const TextPressure = ({
 
         .text-pressure-flex {
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
+          gap: 0.05em;
         }
 
         .text-pressure-stroke span {

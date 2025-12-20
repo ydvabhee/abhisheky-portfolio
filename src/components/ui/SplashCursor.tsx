@@ -670,6 +670,9 @@ function SplashCursor({
     initFramebuffers();
     let lastUpdateTime = Date.now();
     let colorUpdateTimer = 0.0;
+    
+    // Animation Loop Control
+    let animationId;
 
     function updateFrame() {
       const dt = calcDeltaTime();
@@ -678,7 +681,7 @@ function SplashCursor({
       applyInputs();
       step(dt);
       render(null);
-      requestAnimationFrame(updateFrame);
+      animationId = requestAnimationFrame(updateFrame);
     }
 
     function calcDeltaTime() {
@@ -971,51 +974,31 @@ function SplashCursor({
       };
     }
 
-    window.addEventListener('mousedown', e => {
+    const handleMouseDown = e => {
       if (!checkBounds(e.clientX, e.clientY)) return;
       let pointer = pointers[0];
       const pos = getRelativePos(e.clientX, e.clientY);
       updatePointerDownData(pointer, -1, pos.x, pos.y);
       clickSplat(pointer);
-    });
+    };
 
-    document.body.addEventListener('mousemove', function handleFirstMouseMove(e) {
-      if (!checkBounds(e.clientX, e.clientY)) return;
-      let pointer = pointers[0];
-      const pos = getRelativePos(e.clientX, e.clientY);
-      let color = generateColor();
-      updateFrame();
-      updatePointerMoveData(pointer, pos.x, pos.y, color);
-      document.body.removeEventListener('mousemove', handleFirstMouseMove);
-    });
-
-    window.addEventListener('mousemove', e => {
+    const handleMouseMove = e => {
       if (!checkBounds(e.clientX, e.clientY)) return;
       let pointer = pointers[0];
       const pos = getRelativePos(e.clientX, e.clientY);
       let color = pointer.color;
       updatePointerMoveData(pointer, pos.x, pos.y, color);
-    });
+    };
 
-    document.body.addEventListener('touchstart', function handleFirstTouchStart(e) {
-      const touches = e.targetTouches;
-      if (touches.length === 0) return;
-      const t = touches[0];
-      if (!checkBounds(t.clientX, t.clientY)) return;
+    // First Interaction handlers (on document/body?)
+    // Actually, attaching to window is cleaner if we check bounds.
+    // The previous implementation used document.body with 'once'. 
+    // We can keep it or simplify. Let's simplify to standard window listeners with bounds check.
+    
+    window.addEventListener('mousedown', handleMouseDown);
+    window.addEventListener('mousemove', handleMouseMove);
 
-      let pointer = pointers[0];
-      for (let i = 0; i < touches.length; i++) {
-        const t = touches[i];
-        if (checkBounds(t.clientX, t.clientY)) {
-           const pos = getRelativePos(t.clientX, t.clientY);
-           updateFrame();
-           updatePointerDownData(pointer, t.identifier, pos.x, pos.y);
-        }
-      }
-      document.body.removeEventListener('touchstart', handleFirstTouchStart);
-    });
-
-    window.addEventListener('touchstart', e => {
+    const handleTouchStart = e => {
       const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
@@ -1025,33 +1008,39 @@ function SplashCursor({
             updatePointerDownData(pointer, t.identifier, pos.x, pos.y);
         }
       }
-    });
+    };
 
-    window.addEventListener(
-      'touchmove',
-      e => {
-        const touches = e.targetTouches;
-        let pointer = pointers[0];
-        for (let i = 0; i < touches.length; i++) {
-          const t = touches[i];
-          if (checkBounds(t.clientX, t.clientY)) {
-            const pos = getRelativePos(t.clientX, t.clientY);
-            updatePointerMoveData(pointer, pos.x, pos.y, pointer.color);
-          }
-        }
-      },
-      false
-    );
-
-    window.addEventListener('touchend', e => {
-      const touches = e.changedTouches;
+    const handleTouchMove = e => {
+      const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
-        updatePointerUpData(pointer);
+        const t = touches[i];
+        if (checkBounds(t.clientX, t.clientY)) {
+          const pos = getRelativePos(t.clientX, t.clientY);
+          updatePointerMoveData(pointer, pos.x, pos.y, pointer.color);
+        }
       }
-    });
+    };
+
+    const handleTouchEnd = e => {
+      // Logic for touch end
+      updatePointerUpData(pointers[0]);
+    };
+
+    window.addEventListener('touchstart', handleTouchStart);
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd);
 
     updateFrame();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('mousedown', handleMouseDown);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     SIM_RESOLUTION,

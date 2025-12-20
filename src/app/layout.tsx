@@ -19,6 +19,21 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
         </ThemeProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              "name": metadataJson.hero.firstName + " " + metadataJson.hero.lastName,
+              "url": "https://abhishekyadav.dev",
+              "jobTitle": metadataJson.hero.role,
+              "sameAs": [
+                metadataJson.contact.linkedin.url
+              ]
+            })
+          }}
+        />
       </body>
     </html>
   );

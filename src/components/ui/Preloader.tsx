@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import metadata from '../../data/metadata.json';
 
@@ -61,7 +62,7 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
         className="relative flex flex-col items-center"
       >
         <motion.div 
-          className="rounded-full overflow-hidden w-32 h-32 bg-white dark:bg-black"
+          className="rounded-full overflow-hidden w-32 h-32 bg-white dark:bg-black relative"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ 
             scale: [0, 1.2, 1, scaleFactor],
@@ -76,10 +77,13 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
           }}
           onAnimationComplete={onComplete}
         >
-          <img 
+          <Image 
             src={metadata.navbar.logo} 
             alt="Logo" 
-            className="w-full h-full object-cover" 
+            fill
+            className="object-cover"
+            sizes="128px"
+            priority
           />
         </motion.div>
       </motion.div>

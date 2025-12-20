@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Menu, X } from 'lucide-react';
@@ -16,8 +17,15 @@ const Navbar: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true 
         className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-8 py-6 bg-white/80 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white transition-colors duration-300 border-b border-black/5 dark:border-white/5"
       >
         <div className="flex items-center gap-2 z-50">
-          <div className="rounded-full overflow-hidden w-10 h-10">
-            <img src={metadata.navbar.logo} alt="Logo" className="w-full h-full object-cover" />
+          <div className="rounded-full overflow-hidden w-10 h-10 relative">
+            <Image 
+              src={metadata.navbar.logo} 
+              alt="Logo" 
+              fill
+              className="object-cover"
+              sizes="40px"
+              priority
+            />
           </div>
         </div>
 

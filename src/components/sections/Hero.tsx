@@ -4,6 +4,7 @@ import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { ArrowDown, Code, Database, Globe } from 'lucide-react';
 import metadata from '../../data/metadata.json';
 import TextPressure from '../ui/TextPressure';
+import SplashCursor from '../ui/SplashCursor';
 
 const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true }) => {
   const mouseX = useMotionValue(0);
@@ -20,6 +21,8 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
       className="relative min-h-screen flex flex-col justify-between px-6 md:px-12 bg-white dark:bg-black text-black dark:text-white overflow-hidden transition-colors duration-500 pt-32 pb-12"
       onMouseMove={handleMouseMove}
     >
+      <SplashCursor />
+
       {/* Background Grid */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-10">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
@@ -64,7 +67,7 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
            >
              <TextPressure 
                 text={metadata.hero.firstName} 
-                flex={true} 
+                flex={false} 
                 alpha={false} 
                 stroke={false} 
                 width={true} 
@@ -100,7 +103,7 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
              >
                <TextPressure 
                 text={metadata.hero.lastName} 
-                flex={true} 
+                flex={false} 
                 alpha={false} 
                 stroke={false} 
                 width={true} 

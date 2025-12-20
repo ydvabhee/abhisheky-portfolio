@@ -8,14 +8,12 @@ import Work from './sections/Work';
 import About from './sections/About';
 import Contact from './sections/Contact';
 import Preloader from './ui/Preloader';
-import SplashCursor from './ui/SplashCursor';
 
 export default function ClientHome() {
   const [loading, setLoading] = useState(true);
 
   return (
     <>
-      <SplashCursor />
       <AnimatePresence mode="wait">
         {loading && <Preloader onComplete={() => setLoading(false)} />}
       </AnimatePresence>

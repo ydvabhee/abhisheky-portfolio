@@ -958,40 +958,59 @@ function SplashCursor({
       return hash;
     }
 
+    function checkBounds(x, y) {
+      const rect = canvas.getBoundingClientRect();
+      return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }
+
+    function getRelativePos(x, y) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: scaleByPixelRatio(x - rect.left),
+        y: scaleByPixelRatio(y - rect.top)
+      };
+    }
+
     window.addEventListener('mousedown', e => {
+      if (!checkBounds(e.clientX, e.clientY)) return;
       let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
-      updatePointerDownData(pointer, -1, posX, posY);
+      const pos = getRelativePos(e.clientX, e.clientY);
+      updatePointerDownData(pointer, -1, pos.x, pos.y);
       clickSplat(pointer);
     });
 
     document.body.addEventListener('mousemove', function handleFirstMouseMove(e) {
+      if (!checkBounds(e.clientX, e.clientY)) return;
       let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
+      const pos = getRelativePos(e.clientX, e.clientY);
       let color = generateColor();
       updateFrame();
-      updatePointerMoveData(pointer, posX, posY, color);
+      updatePointerMoveData(pointer, pos.x, pos.y, color);
       document.body.removeEventListener('mousemove', handleFirstMouseMove);
     });
 
     window.addEventListener('mousemove', e => {
+      if (!checkBounds(e.clientX, e.clientY)) return;
       let pointer = pointers[0];
-      let posX = scaleByPixelRatio(e.clientX);
-      let posY = scaleByPixelRatio(e.clientY);
+      const pos = getRelativePos(e.clientX, e.clientY);
       let color = pointer.color;
-      updatePointerMoveData(pointer, posX, posY, color);
+      updatePointerMoveData(pointer, pos.x, pos.y, color);
     });
 
     document.body.addEventListener('touchstart', function handleFirstTouchStart(e) {
       const touches = e.targetTouches;
+      if (touches.length === 0) return;
+      const t = touches[0];
+      if (!checkBounds(t.clientX, t.clientY)) return;
+
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
-        let posX = scaleByPixelRatio(touches[i].clientX);
-        let posY = scaleByPixelRatio(touches[i].clientY);
-        updateFrame();
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+        const t = touches[i];
+        if (checkBounds(t.clientX, t.clientY)) {
+           const pos = getRelativePos(t.clientX, t.clientY);
+           updateFrame();
+           updatePointerDownData(pointer, t.identifier, pos.x, pos.y);
+        }
       }
       document.body.removeEventListener('touchstart', handleFirstTouchStart);
     });
@@ -1000,9 +1019,11 @@ function SplashCursor({
       const touches = e.targetTouches;
       let pointer = pointers[0];
       for (let i = 0; i < touches.length; i++) {
-        let posX = scaleByPixelRatio(touches[i].clientX);
-        let posY = scaleByPixelRatio(touches[i].clientY);
-        updatePointerDownData(pointer, touches[i].identifier, posX, posY);
+        const t = touches[i];
+        if (checkBounds(t.clientX, t.clientY)) {
+            const pos = getRelativePos(t.clientX, t.clientY);
+            updatePointerDownData(pointer, t.identifier, pos.x, pos.y);
+        }
       }
     });
 
@@ -1012,9 +1033,11 @@ function SplashCursor({
         const touches = e.targetTouches;
         let pointer = pointers[0];
         for (let i = 0; i < touches.length; i++) {
-          let posX = scaleByPixelRatio(touches[i].clientX);
-          let posY = scaleByPixelRatio(touches[i].clientY);
-          updatePointerMoveData(pointer, posX, posY, pointer.color);
+          const t = touches[i];
+          if (checkBounds(t.clientX, t.clientY)) {
+            const pos = getRelativePos(t.clientX, t.clientY);
+            updatePointerMoveData(pointer, pos.x, pos.y, pointer.color);
+          }
         }
       },
       false
@@ -1050,10 +1073,10 @@ function SplashCursor({
   return (
     <div
       style={{
-        position: 'fixed',
+        position: 'absolute',
         top: 0,
         left: 0,
-        zIndex: 50,
+        zIndex: 0,
         pointerEvents: 'none',
         width: '100%',
         height: '100%'
@@ -1063,8 +1086,8 @@ function SplashCursor({
         ref={canvasRef}
         id="fluid"
         style={{
-          width: '100vw',
-          height: '100vh',
+          width: '100%',
+          height: '100%',
           display: 'block'
         }}
       />

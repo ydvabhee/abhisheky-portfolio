@@ -61,7 +61,7 @@
           "Building scalable solutions and integrating AI/ML capabilities.",
           "Collaborating on innovative projects in a dynamic environment."
         ],
-        "tech": ["React.js", "Node.js", "TypeScript", "Nest.js", "Docker"]
+        "tech": ["React.js", "Node.js", "TypeScript", "Nest.js", "AI/ML", "LLMs", "LangChain", "Docker"]
       },
       {
         "id": 2,
@@ -82,10 +82,11 @@
         "period": "Feb 2023 — Nov 2024",
         "location": "Bengaluru, India",
         "description": [
-          "Resolved a critical MFA issue, enabling faster product releases.",
-          "Improved data migration speed by over 40% through Python automation scripts.",
-          "Designed a microservice for high-precision reports within the Tableau dashboard.",
-          "Managed merging of 10,000+ reports via secure SFTP with PGP encryption."
+          "Boosted software development capacity by resolving a critical MFA issue, enabling faster product releases.",
+          "Improved data migration speed and accuracy by over 40% through Python automation scripts.",
+          "Managed and audited the merging of over 10,000 reports, ensuring secure SFTP delivery via GoAnywhere with PGP encryption.",
+          "Facilitated seamless integration and functionality within the Tableau ecosystem through team collaboration.",
+          "Fostered a culture of code efficiency, enhancing collaboration and product quality."
         ],
         "tech": ["Python", "Tableau", "Automation", "Microservices"]
       },
@@ -96,17 +97,19 @@
         "period": "Sept 2021 — Feb 2023",
         "location": "Kolkata, India",
         "description": [
-          "Developed scalable web apps using React.js/Next.js, TypeScript, Node.js, and MongoDB/PostgreSQL.",
-          "Implemented micro-services architecture and load balancing.",
-          "Automated video generation from user data using Adobe After Effects scripts.",
-          "Integrated customization tools for Scentcraft's platform."
+          "Developed web applications using React.js/Next.js, Typescript, Node.js, and MongoDB/PostgreSQL to create scalable systems.",
+          "Collaborated with the team to design and implement micro-services architecture, load balancing, and Docker for a resilient system.",
+          "Automated video generation from user data with an ae-script for Adobe After Effects, increasing content production efficiency.",
+          "Integrated customization tools for Scentcraft's platform to enhance user experience and enable personalized fragrances creation.",
+          "Enhanced the onboarding process for influencers by developing a web application using React, Node.js, MongoDB, and Tolstoy APIs, improving user experience and operational efficiency."
         ],
-        "tech": ["React.js", "Next.js", "Node.js", "MongoDB", "PostgreSQL", "Docker"]
+        "tech": ["React.js", "Next.js", "Node.js", "MongoDB", "PostgreSQL", "Docker", "Typescript"]
       }
     ]
   },
   "contact": {
-    "title": "Let's work \ntogether",
+    "title": "Let's work 
+together",
     "email": "yk.abhee@gmail.com",
     "linkedin": {
         "label": "LinkedIn",

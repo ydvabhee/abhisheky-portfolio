@@ -1,5 +1,6 @@
 import React from 'react';
 import metadata from '../../data/metadata.json';
+import ScrambledText from '../ui/ScrambledText';
 
 const About: React.FC = () => {
   return (
@@ -14,9 +15,14 @@ const About: React.FC = () => {
         </div>
         <div className="flex flex-col justify-center">
           <h2 className="text-sm font-bold tracking-[0.2em] mb-8 opacity-50 uppercase">{metadata.about.title}</h2>
-          <p className="text-4xl font-medium leading-tight tracking-tight mb-8">
+          
+          <ScrambledText 
+            className="text-4xl font-medium leading-tight tracking-tight mb-8"
+            scrambleChars="01!@#$%^&*"
+          >
             {metadata.about.headline}
-          </p>
+          </ScrambledText>
+
           <div className="space-y-6 text-lg opacity-70 dark:opacity-60 max-w-lg">
             {metadata.about.description.map((paragraph, index) => (
               <p key={index}>{paragraph}</p>

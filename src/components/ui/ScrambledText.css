@@ -1,0 +1,8 @@
+.scrambled-text-block {
+  max-width: 100%;
+}
+
+.char {
+  will-change: transform;
+  display: inline-block;
+}

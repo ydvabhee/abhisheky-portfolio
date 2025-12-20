@@ -18,7 +18,7 @@ const About: React.FC = () => {
           
           <ScrambledText 
             className="text-4xl font-medium leading-tight tracking-tight mb-8"
-            scrambleChars="01!@#$%^&*"
+            scrambleChars=".:"
           >
             {metadata.about.headline}
           </ScrambledText>

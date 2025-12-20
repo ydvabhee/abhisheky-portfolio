@@ -1,17 +1,21 @@
-// @ts-nocheck
-'use client';
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import { SplitText } from 'gsap/SplitText';
 import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
 
-import './ScrambledText.css';
+gsap.registerPlugin(SplitText, ScrambleTextPlugin);
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(SplitText, ScrambleTextPlugin);
+export interface ScrambledTextProps {
+  radius?: number;
+  duration?: number;
+  speed?: number;
+  scrambleChars?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children: React.ReactNode;
 }
 
-const ScrambledText = ({
+const ScrambledText: React.FC<ScrambledTextProps> = ({
   radius = 100,
   duration = 1.2,
   speed = 0.5,
@@ -20,27 +24,24 @@ const ScrambledText = ({
   style = {},
   children
 }) => {
-  const rootRef = useRef(null);
-  const charsRef = useRef([]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!rootRef.current) return;
 
     const split = SplitText.create(rootRef.current.querySelector('p'), {
       type: 'chars',
-      charsClass: 'char'
-    });
-    charsRef.current = split.chars;
-
-    charsRef.current.forEach(c => {
-      gsap.set(c, {
-        display: 'inline-block',
-        attr: { 'data-content': c.innerHTML }
-      });
+      charsClass: 'inline-block will-change-transform'
     });
 
-    const handleMove = e => {
-      charsRef.current.forEach(c => {
+    split.chars.forEach(el => {
+      const c = el as HTMLElement;
+      gsap.set(c, { attr: { 'data-content': c.innerHTML } });
+    });
+
+    const handleMove = (e: PointerEvent) => {
+      split.chars.forEach(el => {
+        const c = el as HTMLElement;
         const { left, top, width, height } = c.getBoundingClientRect();
         const dx = e.clientX - (left + width / 2);
         const dy = e.clientY - (top + height / 2);
@@ -71,7 +72,11 @@ const ScrambledText = ({
   }, [radius, duration, speed, scrambleChars]);
 
   return (
-    <div ref={rootRef} className={`scrambled-text-block ${className}`} style={style}>
+    <div
+      ref={rootRef}
+      className={`font-mono text-[clamp(14px,4vw,32px)] ${className}`}
+      style={style}
+    >
       <p>{children}</p>
     </div>
   );

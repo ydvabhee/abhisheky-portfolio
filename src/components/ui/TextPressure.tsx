@@ -90,7 +90,7 @@ const TextPressure = ({
     const { width: containerW, height: containerH } = containerRef.current.getBoundingClientRect();
 
     // Adjusted font size calculation for better presence
-    let newFontSize = containerW / (chars.length * 0.7);
+    let newFontSize = containerW / (chars.length * 0.65);
     newFontSize = Math.max(newFontSize, minFontSize);
 
     setFontSize(newFontSize);

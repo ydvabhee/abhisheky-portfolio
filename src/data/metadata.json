@@ -4,11 +4,11 @@
     "description": "Portfolio of Abhishek K Yadav, Software Engineer"
   },
   "navbar": {
-    "logo": "/assets/logo.jpg",
+    "logo": "/assets/logo.jpeg",
     "links": [
-      { "label": "ABOUT", "href": "#about" },
-      { "label": "WORK", "href": "#work" },
-      { "label": "CONTACT", "href": "#contact" }
+      { "label": "ABOUT", "href": "/#about" },
+      { "label": "WORK", "href": "/#work" },
+      { "label": "CONTACT", "href": "/#contact" }
     ]
   },
   "hero": {

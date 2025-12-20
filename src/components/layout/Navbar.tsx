@@ -1,17 +1,18 @@
+'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Menu, X } from 'lucide-react';
 import metadata from '../../data/metadata.json';
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
       <motion.nav 
         initial={{ y: -100 }}
-        animate={{ y: 0 }}
+        animate={startAnimation ? { y: 0 } : { y: -100 }}
         className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-8 py-6 bg-white/80 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white transition-colors duration-300 border-b border-black/5 dark:border-white/5"
       >
         <div className="flex items-center gap-2 z-50">

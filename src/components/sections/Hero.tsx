@@ -1,9 +1,10 @@
+'use client';
 import React from 'react';
 import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
 import { ArrowDown, Code, Database, Globe } from 'lucide-react';
 import metadata from '../../data/metadata.json';
 
-const Hero: React.FC = () => {
+const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true }) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -56,7 +57,7 @@ const Hero: React.FC = () => {
          <div className="overflow-hidden border-b border-black/10 dark:border-white/10">
            <motion.h1 
              initial={{ y: "100%" }}
-             animate={{ y: 0 }}
+             animate={startAnimation ? { y: 0 } : { y: "100%" }}
              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
              className="text-[14vw] leading-[0.85] font-black tracking-tighter"
            >
@@ -69,7 +70,7 @@ const Hero: React.FC = () => {
            {/* Inverted Box "K." */}
            <motion.div 
              initial={{ width: 0 }}
-             animate={{ width: "auto" }}
+             animate={startAnimation ? { width: "auto" } : { width: 0 }}
              transition={{ duration: 1, delay: 0.2, ease: "circOut" }}
              className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden"
            >
@@ -82,7 +83,7 @@ const Hero: React.FC = () => {
            <div className="flex-1 overflow-hidden pl-2 md:pl-6">
              <motion.h1 
                initial={{ y: "100%" }}
-               animate={{ y: 0 }}
+               animate={startAnimation ? { y: 0 } : { y: "100%" }}
                transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
                className="text-[14vw] leading-[0.85] font-black tracking-tighter"
              >
@@ -100,7 +101,7 @@ const Hero: React.FC = () => {
         <div className="col-span-1 md:col-span-5">
            <motion.p 
              initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
+             animate={startAnimation ? { opacity: 1 } : { opacity: 0 }}
              transition={{ delay: 1 }}
              className="text-lg md:text-xl font-medium leading-relaxed opacity-80"
            >
@@ -125,7 +126,7 @@ const Hero: React.FC = () => {
           <motion.a 
             href="#work"
             initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
+            animate={startAnimation ? { scale: 1, opacity: 1 } : { scale: 0.9, opacity: 0 }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-4 bg-black dark:bg-white text-white dark:text-black px-8 py-4 rounded-full font-bold text-sm tracking-widest uppercase hover:opacity-80 transition-opacity"

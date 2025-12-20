@@ -55,19 +55,18 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
       </div>
 
       {/* Main Typography Block */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center">
+      <div className="relative z-10 flex-1 flex flex-col justify-center gap-6">
          
-         {/* Line 1 */}
-         <div className="overflow-hidden border-b border-black/10 dark:border-white/10">
+         {/* Line 1: First Name */}
+         <div className="w-full xl:w-[90%] self-start">
            <motion.div 
-             initial={{ y: "100%" }}
-             animate={startAnimation ? { y: 0 } : { y: "100%" }}
+             initial={{ y: "100%", opacity: 0 }}
+             animate={startAnimation ? { y: 0, opacity: 1 } : { y: "100%", opacity: 0 }}
              transition={{ duration: 0.8, ease: [0.76, 0, 0.24, 1] }}
-             className="w-full"
            >
              <TextPressure 
                 text={metadata.hero.firstName} 
-                flex={false} 
+                flex={true} 
                 alpha={false} 
                 stroke={false} 
                 width={true} 
@@ -79,41 +78,16 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
            </motion.div>
          </div>
 
-         {/* Line 2 */}
-         <div className="flex items-stretch border-b border-black/10 dark:border-white/10">
-           {/* Inverted Box "K." */}
+         {/* Line 2: Middle + Last Name */}
+         <div className="w-full xl:w-[90%] self-start">
            <motion.div 
-             initial={{ width: 0 }}
-             animate={startAnimation ? { width: "auto" } : { width: 0 }}
-             transition={{ duration: 1, delay: 0.2, ease: "circOut" }}
-             className="bg-black dark:bg-white flex items-center px-4 md:px-10 overflow-hidden text-white dark:text-black min-w-[10vw]"
+             initial={{ y: "100%", opacity: 0 }}
+             animate={startAnimation ? { y: 0, opacity: 1 } : { y: "100%", opacity: 0 }}
+             transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
            >
-             <div className="w-full">
-               <TextPressure 
-                  text={metadata.hero.middleName} 
-                  flex={false} 
-                  alpha={false} 
-                  stroke={false} 
-                  width={true} 
-                  weight={true} 
-                  italic={true} 
-                  textColor="currentColor" 
-                  minFontSize={24}
-               />
-             </div>
-           </motion.div>
-
-           {/* Remaining Text "YADAV" */}
-           <div className="flex-1 overflow-hidden pl-2 md:pl-6">
-             <motion.div 
-               initial={{ y: "100%" }}
-               animate={startAnimation ? { y: 0 } : { y: "100%" }}
-               transition={{ duration: 0.8, delay: 0.1, ease: [0.76, 0, 0.24, 1] }}
-               className="w-full"
-             >
-               <TextPressure 
-                text={metadata.hero.lastName} 
-                flex={false} 
+             <TextPressure 
+                text={`${metadata.hero.middleName} ${metadata.hero.lastName}`} 
+                flex={true} 
                 alpha={false} 
                 stroke={false} 
                 width={true} 
@@ -121,9 +95,8 @@ const Hero: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true })
                 italic={true} 
                 textColor="currentColor" 
                 minFontSize={24}
-               />
-             </motion.div>
-           </div>
+             />
+           </motion.div>
          </div>
 
       </div>

@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import metadataJson from "@/data/metadata.json";
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://abhisheky.me'),
   title: metadataJson.site.title,
   description: metadataJson.site.description,
 };
@@ -26,7 +27,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Person",
               "name": metadataJson.hero.firstName + " " + metadataJson.hero.lastName,
-              "url": "https://abhishekyadav.dev",
+              "url": "https://abhisheky.me",
               "jobTitle": metadataJson.hero.role,
               "sameAs": [
                 metadataJson.contact.linkedin.url

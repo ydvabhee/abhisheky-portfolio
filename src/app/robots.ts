@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/private/',
     },
-    sitemap: 'https://abhishekyadav.dev/sitemap.xml',
+    sitemap: 'https://abhisheky.me/sitemap.xml',
   };
 }

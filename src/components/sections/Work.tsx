@@ -1,7 +1,7 @@
 'use client';
 import React, { useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, ExternalLink } from 'lucide-react';
 import metadata from '../../data/metadata.json';
 
 const Work: React.FC = () => {
@@ -20,10 +20,10 @@ const Work: React.FC = () => {
 
   return (
     <section id="work" className="py-32 px-4 md:px-8 bg-white dark:bg-black text-black dark:text-white relative overflow-hidden transition-colors duration-500 border-t border-black/10 dark:border-white/10">
-      <div className="max-w-6xl mx-auto relative">
+      <div className="max-w-8xl mx-auto relative">
         
         {/* Section Title */}
-        <div className="flex flex-col items-center mb-32 relative z-10">
+        <div className="flex flex-col items-center mb-20 relative z-10">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -100,7 +100,21 @@ const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ exp
             <div className={`hidden md:block absolute top-8 w-12 h-[1px] bg-black/10 dark:bg-white/10 ${isEven ? '-right-12' : '-left-12'}`} />
 
             <div className={`flex flex-col gap-2 ${isEven ? 'md:items-end' : ''}`}>
-               <h3 className="text-3xl font-black tracking-tight uppercase">{experience.company}</h3>
+               {experience.url ? (
+                 <a 
+                   href={experience.url} 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className={`group/link flex items-center gap-2 w-fit`}
+                 >
+                   <h3 className="text-3xl font-black tracking-tight uppercase group-hover/link:text-zinc-600 dark:group-hover/link:text-zinc-400 transition-colors">
+                     {experience.company}
+                   </h3>
+                   <ExternalLink size={18} className={`opacity-100 -translate-y-1 `} />
+                 </a>
+               ) : (
+                 <h3 className="text-3xl font-black tracking-tight uppercase">{experience.company}</h3>
+               )}
                <div className="flex items-center gap-2 text-sm font-medium opacity-60">
                  <span>{experience.role}</span>
                  <span>•</span>
@@ -108,11 +122,13 @@ const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ exp
                </div>
             </div>
 
-            <div className={`mt-6 space-y-2 opacity-80 leading-relaxed text-sm ${isEven ? 'md:text-right' : ''}`}>
+            <ul className="mt-6 space-y-3 opacity-90 leading-relaxed text-sm list-disc pl-5 text-left marker:text-black/40 dark:marker:text-white/40">
                {experience.description.map((point, i) => (
-                 <p key={i}>{point}</p>
+                 <li key={i} className="pl-1">
+                   {point}
+                 </li>
                ))}
-            </div>
+            </ul>
 
             <div className={`mt-8 flex flex-wrap gap-2 ${isEven ? 'md:justify-end' : ''}`}>
                {experience.tech.map((tech, i) => (

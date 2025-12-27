@@ -53,6 +53,7 @@
       {
         "id": 1,
         "company": "Trippl",
+        "url": "https://trippl.co",
         "role": "Software Engineer",
         "period": "June 2025 — Present",
         "location": "Auckland, New Zealand",
@@ -66,18 +67,22 @@
       {
         "id": 2,
         "company": "Superdash",
+        "url": "https://superdash.ai",
         "role": "Backend Developer",
         "period": "Nov 2024 — June 2025",
         "location": "Bengaluru, India",
         "description": [
-          "Focused on backend architecture and API development.",
-          "Optimized database performance and system reliability."
+          "Increased meeting booking success rate by 20% by reducing friction in the scheduling API and refining prompt-based intent detection.",
+          "Designed and built marketplace app with APIs integrating GoHighLevel, Zapier, and Make, boosting product adoption by 30% per customer.",
+          "Automated document ingestion (PDF, DOC, Images) using Azure Form Recognizer, enhancing product efficiency and accuracy by 50%.",
+          "Developed robust report generation APIs in Node.js for the voice agent platform, empowering customers with in-depth analysis of their AI agent usage and performance."
         ],
-        "tech": ["Backend Architecture", "APIs", "Database Optimization"]
+        "tech": ["LLM", "Prompt Engineering", "FastAPI", "AWS SQS", "Azure Form Recognizer", "Backend Architecture", "APIs", "Database Optimization"]
       },
       {
         "id": 3,
         "company": "USEReady",
+        "url": "https://www.useready.com",
         "role": "Software Engineer",
         "period": "Feb 2023 — Nov 2024",
         "location": "Bengaluru, India",
@@ -93,6 +98,7 @@
       {
         "id": 4,
         "company": "Fleapo",
+        "url": "https://www.fleapo.com",
         "role": "Full Stack Developer",
         "period": "Sept 2021 — Feb 2023",
         "location": "Kolkata, India",
@@ -109,7 +115,7 @@
   },
   "contact": {
     "title": "Let's work \n together",
-    "email": "yk.abhee@gmail.com",
+    "email": "hello@abhisheky.me",
     "linkedin": {
         "label": "LinkedIn",
         "url": "https://www.linkedin.com/in/ydvabhee"

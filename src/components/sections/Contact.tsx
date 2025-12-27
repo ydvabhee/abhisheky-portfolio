@@ -1,13 +1,21 @@
 'use client';
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import metadata from '../../data/metadata.json';
+import Crosshair from '../ui/Crosshair';
 
 const Contact: React.FC = () => {
+  const containerRef = useRef<HTMLElement>(null);
+
   return (
-    <section id="contact" className="py-32 px-8 bg-white dark:bg-black text-black dark:text-white border-t border-black/10 dark:border-white/10 transition-colors duration-500">
-      <div className="flex flex-col items-center text-center">
+    <section 
+      id="contact" 
+      ref={containerRef}
+      className="relative py-32 px-8 bg-white dark:bg-black text-black dark:text-white border-t border-black/10 dark:border-white/10 transition-colors duration-500 overflow-hidden"
+    >
+      <Crosshair color="currentColor" containerRef={containerRef} />
+      <div className="flex flex-col items-center text-center relative z-10">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

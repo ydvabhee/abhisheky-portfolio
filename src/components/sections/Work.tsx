@@ -122,10 +122,15 @@ const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ exp
                </div>
             </div>
 
-            <ul className="mt-6 space-y-3 opacity-90 leading-relaxed text-sm list-disc pl-5 text-left marker:text-black/40 dark:marker:text-white/40">
+            <ul className={`mt-6 space-y-3 opacity-90 leading-relaxed text-sm marker:text-black/40 dark:marker:text-white/40 ${
+              isEven 
+                ? 'text-left list-disc pl-5 md:text-right md:list-none md:pl-0' 
+                : 'text-left list-disc pl-5'
+            }`}>
                {experience.description.map((point, i) => (
-                 <li key={i} className="pl-1">
-                   {point}
+                 <li key={i} className={`pl-1 ${isEven ? 'md:pl-0 md:flex md:flex-row-reverse md:items-start md:gap-2' : ''}`}>
+                   {isEven && <span className="hidden md:block text-black/40 dark:text-white/40 mt-1.5">•</span>}
+                   <span className="flex-1">{point}</span>
                  </li>
                ))}
             </ul>

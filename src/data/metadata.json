@@ -9,7 +9,11 @@
       { "label": "ABOUT", "href": "/#about" },
       { "label": "WORK", "href": "/#work" },
       { "label": "CONTACT", "href": "/#contact" }
-    ]
+    ],
+    "resume": {
+      "label": "RESUME",
+      "href": "https://drive.google.com/file/d/1CUgVwRZFJMtSL4pJxGdDOy4yWPsnd5Mb/view?usp=drive_link"
+    }
   },
   "hero": {
     "role": "Software Engineer",

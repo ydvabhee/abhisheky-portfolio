@@ -14,7 +14,7 @@ const Contact: React.FC = () => {
       ref={containerRef}
       className="relative py-32 px-8 bg-white dark:bg-black text-black dark:text-white border-t border-black/10 dark:border-white/10 transition-colors duration-500 overflow-hidden"
     >
-      <Crosshair color="currentColor" containerRef={containerRef} />
+      <Crosshair color="currentColor" containerRef={containerRef} selector=".email-target" />
       <div className="flex flex-col items-center text-center relative z-10">
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -26,7 +26,7 @@ const Contact: React.FC = () => {
         
         <a 
           href={`mailto:${metadata.contact.email}`}
-          className="text-3xl md:text-5xl font-medium hover:line-through transition-all mb-20 block"
+          className="email-target text-3xl md:text-5xl font-medium hover:line-through transition-all mb-20 block"
         >
           {metadata.contact.email}
         </a>

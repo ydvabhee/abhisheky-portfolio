@@ -32,6 +32,7 @@ const getMousePos = (e: MouseEvent, container: HTMLElement | null): MousePos => 
 interface CrosshairProps {
   color?: string;
   containerRef?: React.RefObject<HTMLElement | null>;
+  selector?: string;
 }
 
 /**
@@ -39,7 +40,7 @@ interface CrosshairProps {
  * @param {CrosshairProps} props - The component props.
  * @returns {JSX.Element} The Crosshair component.
  */
-const Crosshair: React.FC<CrosshairProps> = ({ color = 'white', containerRef = undefined }) => {
+const Crosshair: React.FC<CrosshairProps> = ({ color = 'white', containerRef = undefined, selector = 'a' }) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const lineHorizontalRef = useRef<HTMLDivElement>(null);
   const lineVerticalRef = useRef<HTMLDivElement>(null);
@@ -145,7 +146,7 @@ const Crosshair: React.FC<CrosshairProps> = ({ color = 'white', containerRef = u
       requestAnimationFrame(render);
     };
 
-    const links = containerRef?.current ? containerRef.current.querySelectorAll('a') : document.querySelectorAll('a');
+    const links = containerRef?.current ? containerRef.current.querySelectorAll(selector) : document.querySelectorAll(selector);
 
     links.forEach(link => {
       link.addEventListener('mouseenter', enter);
@@ -160,7 +161,7 @@ const Crosshair: React.FC<CrosshairProps> = ({ color = 'white', containerRef = u
         link.removeEventListener('mouseleave', leave);
       });
     };
-  }, [containerRef]);
+  }, [containerRef, selector]);
 
   return (
     <div

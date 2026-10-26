@@ -11,7 +11,7 @@ export default function Hobbies() {
   return (
     <section id="hobbies" className="relative px-6 pt-32 md:px-12">
       <div className="mx-auto max-w-[1600px]">
-        <SectionLabel n="03">{hobbies.title}</SectionLabel>
+        <SectionLabel>{hobbies.title}</SectionLabel>
         <h2 className="mt-6 text-[clamp(2.5rem,6vw,6rem)] font-semibold leading-[0.95] tracking-[-0.05em]">
           {words.join(' ')} <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">{last}</span>
         </h2>
@@ -28,10 +28,7 @@ export default function Hobbies() {
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
               className="glass w-full rounded-3xl p-8 md:w-[min(40%,520px)] md:p-10"
             >
-              <div className="font-mono text-xs uppercase tracking-[0.2em] text-fg/50">
-                0{i + 1} / 0{hobbies.items.length}
-              </div>
-              <h3 className="mt-6 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">{item.name}</h3>
+              <h3 className="text-4xl font-semibold tracking-[-0.04em] md:text-5xl">{item.name}</h3>
               <p className="mt-4 text-lg text-fg/70">{item.line}</p>
             </motion.div>
           </div>

@@ -5,13 +5,12 @@ import metadata from '@/data/metadata.json';
 import SectionLabel from '../ui/SectionLabel';
 
 const { work } = metadata;
-const pad = (n: number) => String(n).padStart(2, '0');
 
 export default function Work() {
   return (
     <section id="work" className="relative px-6 pt-32 md:px-12">
       <div className="mx-auto max-w-[1600px]">
-        <SectionLabel n="02">{work.title}</SectionLabel>
+        <SectionLabel>{work.title}</SectionLabel>
         <h2 className="mt-6 text-[clamp(2.5rem,6vw,6rem)] font-semibold leading-[0.95] tracking-[-0.05em]">
           A journey of <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">growth.</span>
         </h2>
@@ -28,12 +27,7 @@ export default function Work() {
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
               className="glass w-full rounded-3xl md:w-[min(46%,640px)] md:p-10 p-5"
             >
-              <div className="flex justify-between gap-4 font-mono text-xs uppercase tracking-[0.2em] text-fg/50">
-                <span>
-                  {pad(i + 1)} / {pad(work.experiences.length)}
-                </span>
-                <span>{exp.period}</span>
-              </div>
+              <p className="font-mono text-xs uppercase tracking-[0.2em] text-fg/50">{exp.period}</p>
 
               <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] md:mt-8 md:text-5xl">
                 <a href={exp.url} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 transition hover:text-accent">

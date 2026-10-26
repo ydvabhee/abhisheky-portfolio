@@ -30,7 +30,7 @@
     "footerText": ""
   },
   "about": {
-    "title": "About the Engineer",
+    "title": "About me",
     "headline": "I AM A SOFTWARE ENGINEER WITH A PASSION FOR NURTURING GROWTH IN CODE AND LIFE.",
     "profileImage": "/assets/profile.jpg",
     "description": [
@@ -60,7 +60,7 @@
         "company": "Trippl",
         "url": "https://trippl.co",
         "role": "Software Engineer",
-        "period": "June 2025 — Present",
+        "period": "June 2025 to Present",
         "location": "Auckland, New Zealand",
         "description": [
           "Full-Stack Developer leveraging React.js, Node.js, TypeScript, and Nest.js.",
@@ -74,7 +74,7 @@
         "company": "Superdash",
         "url": "https://superdash.ai",
         "role": "Backend Developer",
-        "period": "Nov 2024 — June 2025",
+        "period": "Nov 2024 to June 2025",
         "location": "Bengaluru, India",
         "description": [
           "Increased meeting booking success rate by 20% by reducing friction in the scheduling API and refining prompt-based intent detection.",
@@ -89,7 +89,7 @@
         "company": "USEReady",
         "url": "https://www.useready.com",
         "role": "Software Engineer",
-        "period": "Feb 2023 — Nov 2024",
+        "period": "Feb 2023 to Nov 2024",
         "location": "Bengaluru, India",
         "description": [
           "Boosted software development capacity by resolving a critical MFA issue, enabling faster product releases.",
@@ -105,7 +105,7 @@
         "company": "Fleapo",
         "url": "https://www.fleapo.com",
         "role": "Full Stack Developer",
-        "period": "Sept 2021 — Feb 2023",
+        "period": "Sept 2021 to Feb 2023",
         "location": "Kolkata, India",
         "description": [
           "Developed web applications using React.js/Next.js, Typescript, Node.js, and MongoDB/PostgreSQL to create scalable systems.",

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import metadataJson from "@/data/metadata.json";
 
@@ -20,10 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" data-theme="sage" suppressHydrationWarning className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: "try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=['sage','olive','apricot','cream'].indexOf(t)>-1?t:'sage'}catch(e){}" }} />
-      </head>
       <body className="font-sans antialiased">
+        <Script id="theme" strategy="beforeInteractive">
+          {"try{var t=localStorage.getItem('theme');document.documentElement.dataset.theme=['sage','olive','apricot','cream'].indexOf(t)>-1?t:'sage'}catch(e){}"}
+        </Script>
         {children}
         <script
           type="application/ld+json"

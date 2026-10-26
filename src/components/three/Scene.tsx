@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { ContactShadows } from '@react-three/drei';
+import Lenis from 'lenis';
 import { MathUtils, type Group, type Object3D, type PerspectiveCamera } from 'three';
 import { THEMES, useThemeName, type Palette } from '@/lib/themes';
 import { STAGES, type CamKey, type PoseName } from '@/lib/stages';
@@ -21,6 +22,7 @@ function Rig({ pal }: { pal: Palette }) {
   const shadow = useRef<Group>(null);
   const stage = useRef(0);
   const racket = useRef<Object3D>(null);
+  const spout = useRef<Object3D>(null);
   // Snap stops: a[i] = scroll offset of keyframe i, b[i] = end of its reading zone (card taller than the screen)
   const stops = useRef<{ a: number[]; b: number[] }>({ a: [], b: [] });
   const arrived = useRef(0);
@@ -65,7 +67,17 @@ function Rig({ pal }: { pal: Palette }) {
     // Snap to the nearest stop once scrolling stops; reading zones are left alone
     let holding = false;
     let timer = 0;
-    const go = (y: number) => window.scrollTo({ top: y, behavior: still ? 'auto' : 'smooth' });
+    // Apple-style smoothed wheel via Lenis (touch stays native); reduced motion gets plain native scrolling
+    const lenis = still ? null : new Lenis({ lerp: 0.09, smoothWheel: true, syncTouch: false });
+    if (lenis) document.documentElement.style.scrollBehavior = 'auto';
+    let raf = 0;
+    const tick = (time: number) => {
+      lenis?.raf(time);
+      raf = requestAnimationFrame(tick);
+    };
+    if (lenis) raf = requestAnimationFrame(tick);
+    const go = (y: number) =>
+      lenis ? lenis.scrollTo(y, { duration: 1.1, easing: (t) => (t >= 1 ? 1 : 1 - 2 ** (-10 * t)) }) : window.scrollTo({ top: y, behavior: still ? 'auto' : 'smooth' });
     const snap = () => {
       const { a, b } = stops.current;
       const y = window.scrollY;
@@ -76,9 +88,9 @@ function Rig({ pal }: { pal: Palette }) {
     };
     const later = () => {
       clearTimeout(timer);
-      timer = window.setTimeout(snap, 160);
+      timer = window.setTimeout(snap, lenis ? 120 : 160);
     };
-    const native = 'onscrollend' in window;
+    const native = !lenis && 'onscrollend' in window;
     const down = () => (holding = true);
     const up = () => {
       holding = false;
@@ -89,6 +101,7 @@ function Rig({ pal }: { pal: Palette }) {
     window.addEventListener('touchcancel', up, { passive: true });
     const onScroll = native ? snap : later;
     window.addEventListener(native ? 'scrollend' : 'scroll', onScroll, { passive: true });
+    // (with Lenis the plain scroll listener above fires for its animated scroll too, debounced by `later`)
 
     // Nav anchors land on the first stop inside the section
     const click = (e: MouseEvent) => {
@@ -105,6 +118,9 @@ function Rig({ pal }: { pal: Palette }) {
     return () => {
       ro.disconnect();
       clearTimeout(timer);
+      cancelAnimationFrame(raf);
+      lenis?.destroy();
+      document.documentElement.style.scrollBehavior = '';
       window.removeEventListener('resize', measure);
       window.removeEventListener('touchstart', down);
       window.removeEventListener('touchend', up);
@@ -220,9 +236,9 @@ function Rig({ pal }: { pal: Palette }) {
         <ContactShadows frames={Infinity} resolution={mobileShadow ? 128 : 256} scale={7} blur={2.5} far={1.6} color={sc.shadow} opacity={sc.shadowOpacity} />
       </group>
       <group ref={avatar}>
-        <Avatar pose={pose} outfit={STAGES[outfitIdx].outfit} palette={pal} still={still} racketRef={racket} />
+        <Avatar pose={pose} outfit={STAGES[outfitIdx].outfit} palette={pal} still={still} racketRef={racket} spoutRef={spout} />
       </group>
-      <Sets stage={stage} palette={pal} still={still} racketRef={racket} arrived={arrived} />
+      <Sets stage={stage} palette={pal} still={still} racketRef={racket} spoutRef={spout} arrived={arrived} />
     </>
   );
 }

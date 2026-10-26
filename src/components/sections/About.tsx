@@ -47,7 +47,7 @@ export default function About() {
     <section id="about" data-scene className="relative flex min-h-svh items-center px-6 py-32 md:px-12">
       <div className="mx-auto grid w-full max-w-[1600px] md:grid-cols-2">
         <div className="glass rounded-3xl p-8 md:col-start-2 md:p-10">
-          <SectionLabel n="01">{about.title}</SectionLabel>
+          <SectionLabel>{about.title}</SectionLabel>
 
           <RevealText
             text={sentenceCase(about.headline)}

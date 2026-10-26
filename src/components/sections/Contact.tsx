@@ -11,7 +11,7 @@ export default function Contact() {
   return (
     <section id="contact" data-scene className="relative flex min-h-svh flex-col px-6 pb-8 pt-32 md:px-12">
       <div className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col items-center justify-center text-center">
-        <SectionLabel n="04">Contact</SectionLabel>
+        <SectionLabel>Contact</SectionLabel>
 
         <h2 className="mt-8 text-[clamp(3.5rem,12vw,12rem)] font-semibold leading-[0.88] tracking-[-0.055em]">
           {line1}

@@ -392,24 +392,37 @@ function S5({ k }: { k: PropColors }) {
   );
 }
 
-// Shuttle: his and the opponent's racket heads are measured (set space) at their contact phases.
-// Around each contact the shuttle rides the live racket head, then flies a drag-ballistic arc from the exact
-// release point to the other racket's contact point, blending onto the live racket for the last moments.
+// Shuttle: one continuous object on a path that is a pure function of clock time. Both racket-head contact
+// points are measured (interpolated to the exact hit phase) over a few rallies, averaged, then frozen.
+// Each half-rally is a drag-ballistic flight from one contact point to the other; the direction flips at a hit.
 const G = 9.8;
 const DRAG = 3;
 const PERIOD = 1 / BADMINTON_HZ;
-const HOLD = 0.04 * PERIOD;
-const BLEND = 0.12;
+const HALF = PERIOD / 2;
+const FLIP = 0.06;
+const SAMPLES = 4;
+const E_T = 1 - Math.exp(-DRAG * HALF);
+const FP = new Vector3();
+const FV = new Vector3();
+const QA = new Quaternion();
+// Position and unit velocity direction at time tt into the flight a -> b (duration HALF)
+function flight(a: Vector3, b: Vector3, tt: number, pos: Vector3, dir: Vector3) {
+  const e = Math.exp(-DRAG * tt);
+  const vy0 = ((b.y - a.y + (G * HALF) / DRAG) * DRAG) / E_T - G / DRAG;
+  const f = (1 - e) / E_T;
+  pos.set(a.x + (b.x - a.x) * f, a.y + ((vy0 + G / DRAG) * (1 - e)) / DRAG - (G * tt) / DRAG, a.z + (b.z - a.z) * f);
+  const hv = (DRAG * e) / E_T;
+  dir.set((b.x - a.x) * hv, (vy0 + G / DRAG) * e - G / DRAG, (b.z - a.z) * hv).normalize();
+}
 function S6({ k, racketRef, arrived }: { k: PropColors; racketRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
   const { g: setG, still } = useContext(SetCtx);
   const sh = useRef<Group>(null);
   const opp = useRef<Mesh>(null);
-  const q = useMemo(() => new Quaternion(), []);
   const c = useMemo(
-    () => ({ h: new Vector3(), o: new Vector3(), lh: new Vector3(), lo: new Vector3(), rel: new Vector3(), hm: false, om: false, hd: 1, od: 1, tr: 0, key: -1, seg: -1 }),
+    () => ({ h: new Vector3(), o: new Vector3(), lh: new Vector3(), lo: new Vector3(), ph: new Vector3(), po: new Vector3(), s: new Vector3(), nh: 0, no: 0, last: NaN, frozen: false }),
     [],
   );
-  useSet((t, _, __, s) => {
+  useSet((t, _, __, st) => {
     const g = sh.current;
     const set = setG.current;
     if (!g || !set) return;
@@ -417,72 +430,53 @@ function S6({ k, racketRef, arrived }: { k: PropColors; racketRef: RefObject<Obj
       g.position.set(0.05, 2, 1.3);
       return;
     }
-    const rk = racketRef.current;
-    const op = opp.current;
-    if (Math.round(s) !== 6 || arrived.current < 1 || !rk || !op) {
-      g.visible = false;
-      return;
-    }
-    rk.getWorldPosition(c.lh);
-    set.worldToLocal(c.lh);
-    op.getWorldPosition(c.lo);
-    set.worldToLocal(c.lo);
     const ph = BADMINTON_HZ * t - BADMINTON_HIT_PHASE / TAU;
-    const cyc = Math.floor(ph);
-    const u = (ph - cyc) * PERIOD;
-    // Measure each contact point at the closest frame to its contact phase
-    const dh = Math.min(fract(ph), 1 - fract(ph));
-    if (dh > 0.1) c.hd = 1;
-    else if (dh < c.hd) {
-      c.hd = dh;
-      c.h.copy(c.lh);
-      c.hm = true;
-    }
-    const dp = Math.min(fract(ph - 0.5), 1 - fract(ph - 0.5));
-    if (dp > 0.1) c.od = 1;
-    else if (dp < c.od) {
-      c.od = dp;
-      c.o.copy(c.lo);
-      c.om = true;
-    }
-    if (!c.hm || !c.om) {
-      g.visible = false;
-      return;
+    if (!c.frozen) {
+      const rk = racketRef.current;
+      const op = opp.current;
+      if (Math.round(st) !== 6 || arrived.current < 1 || !rk || !op) {
+        c.last = NaN;
+        g.visible = false;
+        return;
+      }
+      rk.getWorldPosition(c.lh);
+      set.worldToLocal(c.lh);
+      op.getWorldPosition(c.lo);
+      set.worldToLocal(c.lo);
+      // Frames bracketing a hit phase: lerp the two racket positions to the exact hit time and average
+      if (c.last === c.last && ph - c.last < 0.5) {
+        const sample = (u0: number, u1: number, prev: Vector3, cur: Vector3, acc: Vector3, n: number) => {
+          if (Math.floor(u1) <= Math.floor(u0)) return n;
+          const f = (Math.floor(u1) - u0) / (u1 - u0);
+          c.s.lerpVectors(prev, cur, f);
+          acc.lerp(c.s, 1 / (n + 1));
+          return n + 1;
+        };
+        c.nh = sample(c.last, ph, c.ph, c.lh, c.h, c.nh);
+        c.no = sample(c.last - 0.5, ph - 0.5, c.po, c.lo, c.o, c.no);
+        if (c.nh >= SAMPLES && c.no >= SAMPLES) c.frozen = true;
+      }
+      c.last = ph;
+      c.ph.copy(c.lh);
+      c.po.copy(c.lo);
+      if (!c.frozen) {
+        g.visible = false;
+        return;
+      }
     }
     g.visible = true;
-    const half = PERIOD / 2;
-    const seg = u < HOLD ? 0 : u < half ? 1 : u < half + HOLD ? 2 : 3;
-    c.seg = seg;
-    if (seg === 0 || seg === 2) {
-      g.position.copy(seg === 0 ? c.lh : c.lo);
-      return;
+    const u = (ph - Math.floor(ph)) * PERIOD;
+    const back = u >= HALF;
+    const tt = back ? u - HALF : u;
+    flight(back ? c.o : c.h, back ? c.h : c.o, tt, g.position, FV);
+    g.quaternion.setFromUnitVectors(Z, FV);
+    if (tt < FLIP) {
+      // Flip from the previous flight's landing direction over FLIP seconds
+      flight(back ? c.h : c.o, back ? c.o : c.h, HALF, FP, tmpV);
+      QA.setFromUnitVectors(Z, tmpV);
+      QA.setFromUnitVectors(Z, tmpV).slerp(g.quaternion, MathUtils.smoothstep(tt, 0, FLIP));
+      g.quaternion.copy(QA);
     }
-    const key = cyc * 2 + (seg === 3 ? 1 : 0);
-    const from = seg === 1 ? c.lh : c.lo;
-    if (c.key !== key) {
-      c.key = key;
-      c.rel.copy(from);
-      c.tr = t;
-    }
-    const to = seg === 1 ? c.o : c.h;
-    const live = seg === 1 ? c.lo : c.lh;
-    const tEnd = (cyc + BADMINTON_HIT_PHASE / TAU) / BADMINTON_HZ + (seg === 1 ? half : PERIOD);
-    const T = Math.max(tEnd - c.tr, 0.03);
-    const tt = Math.min(t - c.tr, T);
-    const a = c.rel;
-    const e = Math.exp(-DRAG * tt);
-    const eT = 1 - Math.exp(-DRAG * T);
-    const f = (1 - e) / eT;
-    const vy0 = ((to.y - a.y + (G * T) / DRAG) * DRAG) / eT - G / DRAG;
-    const w = MathUtils.smoothstep(tt, T - BLEND, T);
-    g.position.set(
-      a.x + (to.x - a.x) * f + w * (live.x - to.x),
-      a.y + ((vy0 + G / DRAG) * (1 - e)) / DRAG - (G * tt) / DRAG + w * (live.y - to.y),
-      a.z + (to.z - a.z) * f + w * (live.z - to.z),
-    );
-    const hv = (DRAG * e) / eT;
-    tmpV.set((to.x - a.x) * hv, (vy0 + G / DRAG) * e - G / DRAG, (to.z - a.z) * hv).normalize();
-    g.quaternion.copy(q.setFromUnitVectors(Z, tmpV));
   });
   return (
     <>
@@ -572,21 +566,90 @@ function S7({ k }: { k: PropColors }) {
   );
 }
 
-function S8({ pal, stage }: { pal: Palette; stage: RefObject<number> }) {
+const DROPS = 12;
+const DROP_PERIOD = 1;
+const BED_Y = 0.24;
+const SPOUT_SPEED = 0.8;
+const AY = new Vector3(0, 1, 0);
+const DQ = new Quaternion();
+const DT = new Vector3();
+const DD = new Vector3();
+function S8({ pal, stage, spoutRef, arrived }: { pal: Palette; stage: RefObject<number>; spoutRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
   const k = pal.prop;
+  const { g: setG, still } = useContext(SetCtx);
   const plants = useRef<(Group | null)[]>([]);
   const drops = useRef<InstancedMesh>(null);
-  useSet((t) => {
+  // Per droplet: spawn position, spawn velocity, last cycle index
+  const d = useMemo(() => ({ p: new Float32Array(DROPS * 3), v: new Float32Array(DROPS * 3), k: new Int32Array(DROPS).fill(-1e9), live: false }), []);
+  useSet((t, _, __, st) => {
     const grow = MathUtils.smoothstep(MathUtils.clamp(1 - Math.abs(stage.current - 8) * 2, 0, 1), 0, 1);
     plants.current.forEach((o, i) => o && (o.scale.y = Math.max(grow + 0.03 * Math.sin(t + i), 1e-3)));
     const m = drops.current;
-    if (!m) return;
-    for (let i = 0; i < 5; i++) {
-      const u = fract(1.4 * t + i / 5);
-      dummy.position.set(-0.25, 0.58 - 0.34 * u * u, 0.68 + 0.04 * u);
+    const set = setG.current;
+    const sp = spoutRef.current;
+    if (!m || !set) return;
+    const active = Math.round(st) === 8 && arrived.current > 1 && !!sp;
+    m.visible = active || still;
+    if (!m.visible) {
+      d.live = false;
+      return;
+    }
+    if (sp) {
+      sp.getWorldPosition(DT);
+      sp.getWorldDirection(DD);
+      DD.add(DT);
+      set.worldToLocal(DT);
+      set.worldToLocal(DD);
+      DD.sub(DT).normalize();
+    } else {
+      DT.set(-0.25, 0.58, 0.68);
+      DD.set(0, -0.2, 1).normalize();
+    }
+    for (let i = 0; i < DROPS; i++) {
+      const c = t / DROP_PERIOD + i / DROPS;
+      const kk = Math.floor(c);
+      const age = (c - kk) * DROP_PERIOD;
+      if (d.k[i] !== kk) {
+        // Spawn at the live spout tip, thrown along it
+        d.k[i] = kk;
+        d.p[i * 3] = DT.x;
+        d.p[i * 3 + 1] = DT.y;
+        d.p[i * 3 + 2] = DT.z;
+        d.v[i * 3] = DD.x * SPOUT_SPEED;
+        d.v[i * 3 + 1] = DD.y * SPOUT_SPEED;
+        d.v[i * 3 + 2] = DD.z * SPOUT_SPEED;
+      }
+      const vx = d.v[i * 3];
+      const vz = d.v[i * 3 + 2];
+      const vy0 = d.v[i * 3 + 1];
+      const y0 = d.p[i * 3 + 1];
+      // Time to reach the bed: y0 + vy0*s - g/2*s^2 = BED_Y
+      const disc = vy0 * vy0 + 2 * G * (y0 - BED_Y);
+      const tl = disc > 0 ? (vy0 + Math.sqrt(disc)) / G : 0;
+      const sinceLand = age - tl;
+      if (sinceLand > 0.18) {
+        dummy.scale.setScalar(1e-4);
+        dummy.position.set(0, -1, 0);
+        dummy.quaternion.identity();
+      } else if (sinceLand > 0) {
+        // Splash: flatten and fade where it landed
+        const f = 1 - sinceLand / 0.18;
+        dummy.position.set(d.p[i * 3] + vx * tl, BED_Y, d.p[i * 3 + 2] + vz * tl);
+        dummy.scale.set(1 + (1 - f) * 1.5, 0.3 * f + 1e-3, 1 + (1 - f) * 1.5);
+        dummy.quaternion.identity();
+      } else {
+        dummy.position.set(d.p[i * 3] + vx * age, y0 + vy0 * age - 0.5 * G * age * age, d.p[i * 3 + 2] + vz * age);
+        // Stretch along the instantaneous velocity
+        DD.set(vx, vy0 - G * age, vz);
+        const sp2 = DD.length();
+        dummy.quaternion.copy(DQ.setFromUnitVectors(AY, DD.divideScalar(sp2 || 1)));
+        dummy.scale.set(1, 1 + Math.min(sp2 * 0.5, 2.5), 1);
+      }
       dummy.updateMatrix();
       m.setMatrixAt(i, dummy.matrix);
     }
+    dummy.scale.setScalar(1);
+    dummy.quaternion.identity();
     m.instanceMatrix.needsUpdate = true;
   });
   const bloom = [k.a, k.c, k.a];
@@ -609,7 +672,7 @@ function S8({ pal, stage }: { pal: Palette; stage: RefObject<number> }) {
           <Sph a={0.07} p={[0, 0, 0.03]} s={[1, 1, 0.5]} c={k.base} />
         </group>
       </group>
-      <instancedMesh ref={drops} args={[undefined, undefined, 5]}>
+      <instancedMesh ref={drops} args={[undefined, undefined, DROPS]} frustumCulled={false}>
         <sphereGeometry args={[0.014, 8, 6]} />
         <meshStandardMaterial color={k.water} roughness={0.25} metalness={0} />
       </instancedMesh>
@@ -638,7 +701,7 @@ function S9({ k }: { k: PropColors }) {
   );
 }
 
-export default function Sets({ stage, palette, still, racketRef, arrived }: { stage: RefObject<number>; palette: Palette; still?: boolean; racketRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
+export default function Sets({ stage, palette, still, racketRef, spoutRef, arrived }: { stage: RefObject<number>; palette: Palette; still?: boolean; racketRef: RefObject<Object3D | null>; spoutRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
   const k = palette.prop;
   const st = !!still;
   const S = (frame: number, stages: number[], children: ReactNode) => (
@@ -658,7 +721,7 @@ export default function Sets({ stage, palette, still, racketRef, arrived }: { st
       {S(5, [5], <S5 k={k} />)}
       {S(6, [6], <S6 k={k} racketRef={racketRef} arrived={arrived} />)}
       {S(7, [7], <S7 k={k} />)}
-      {S(8, [8], <S8 pal={palette} stage={stage} />)}
+      {S(8, [8], <S8 pal={palette} stage={stage} spoutRef={spoutRef} arrived={arrived} />)}
       {S(9, [9], <S9 k={k} />)}
     </>
   );

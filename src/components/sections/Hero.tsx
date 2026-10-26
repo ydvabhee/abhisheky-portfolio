@@ -29,7 +29,7 @@ export default function Hero() {
           className="mb-6 flex items-center gap-3 font-mono text-xs uppercase tracking-[0.15em] text-fg/60 md:tracking-[0.25em]"
         >
           <span className="h-2 w-2 rounded-full bg-accent" />
-          {hero.role} — {hero.subRole}
+          {hero.role} · {hero.subRole}
         </motion.p>
 
         <h1 className="text-[clamp(3.5rem,11vw,11.5rem)] font-semibold leading-[0.88] tracking-[-0.055em]">

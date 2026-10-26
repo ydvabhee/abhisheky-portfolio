@@ -469,7 +469,7 @@ function Face({ m, look }: { m: Mats; look: Look }) {
 
 const POP = 0.35;
 
-export default function Avatar({ pose, outfit, palette, still, racketRef }: { pose: PoseName; outfit: Outfit; palette: Palette; still?: boolean; racketRef?: RefObject<Object3D | null> }) {
+export default function Avatar({ pose, outfit, palette, still, racketRef, spoutRef }: { pose: PoseName; outfit: Outfit; palette: Palette; still?: boolean; racketRef?: RefObject<Object3D | null>; spoutRef?: RefObject<Object3D | null> }) {
   const root = useRef<Group>(null);
   const joints = useRef<Group[]>([]);
   const held = useRef<Partial<Record<Held, Group>>>({});
@@ -614,6 +614,8 @@ export default function Avatar({ pose, outfit, palette, still, racketRef }: { po
               <mesh position={[0, -0.03, 0]} rotation={[0, PI / 2, 0]} material={m.ink}>
                 <torusGeometry args={[0.07, 0.012, 6, 12, PI]} />
               </mesh>
+              {/* spout tip: centre (0,-0.07,0.14) + half length 0.12 rotated 0.9 about x */}
+              <object3D ref={spoutRef} position={[0, 0.005, 0.234]} />
             </group>
           </Arm>
         </group>

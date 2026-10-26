@@ -3,9 +3,10 @@ import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode, 
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
 import { Color, ConeGeometry, DoubleSide, MathUtils, Object3D, Quaternion, Vector3 } from 'three';
-import type { BufferAttribute, Group, InstancedMesh, Mesh, MeshStandardMaterial, PlaneGeometry } from 'three';
+import type { BufferAttribute, Group, InstancedMesh, Mesh, MeshToonMaterial, PlaneGeometry } from 'three';
 import { NPC_HAIR, NPC_SKIN, type Palette, type PropColors } from '@/lib/themes';
 import { STAGES } from '@/lib/stages';
+import { toonGradient } from './toon';
 import { BADMINTON_HZ, BADMINTON_HIT_PHASE } from './Avatar';
 
 type V3 = [number, number, number];
@@ -29,7 +30,7 @@ function useSet(cb: (t: number, dt: number, pop: number, s: number) => void) {
 }
 
 function Clay({ c, two }: { c: string; two?: boolean }) {
-  return <meshStandardMaterial color={c} roughness={0.9} metalness={0} side={two ? DoubleSide : undefined} />;
+  return <meshToonMaterial color={c} gradientMap={toonGradient} side={two ? DoubleSide : undefined} />;
 }
 function M({ p, r, s, c, ref, two, children }: { p?: V3; r?: V3; s?: V3; c: string; ref?: Ref<Mesh>; two?: boolean; children: ReactNode }) {
   return (
@@ -50,7 +51,7 @@ function Scr({ a, p, c }: { a: [number, number]; p: V3; c: string }) {
   return (
     <mesh position={p} rotation={[0, Math.PI, 0]}>
       <planeGeometry args={a} />
-      <meshStandardMaterial color={c} roughness={0.5} emissive={c} emissiveIntensity={0.3} />
+      <meshToonMaterial color={c} gradientMap={toonGradient} emissive={c} emissiveIntensity={0.3} />
     </mesh>
   );
 }
@@ -144,6 +145,12 @@ function NPC({ at, ry, tee, skin, anim, k, band, racket, headRef }: { at: [numbe
         </group>
         <group ref={head} position={[0, 1.12, 0]}>
           <Sph a={0.19} c={sk} />
+          {[-0.07, 0.07].map((x) => (
+            <Sph key={x} a={0.018} p={[x, 0.03, 0.172]} c={k.ink} />
+          ))}
+          <M p={[0, -0.02, 0.168]} r={[0, 0, Math.PI]} c={k.ink}>
+            <torusGeometry args={[0.05, 0.007, 6, 12, Math.PI]} />
+          </M>
           <M r={[-0.3, 0, 0]} c={NPC_HAIR[skin]}>
             <sphereGeometry args={[0.198, 24, 12, 0, TAU, 0, 1.2]} />
           </M>
@@ -185,7 +192,7 @@ function S0({ k }: { k: PropColors }) {
     m.current.forEach((o, i) => {
       if (!o) return;
       const a = 0.35 * t + i * 2.094;
-      o.position.set(1.5 * Math.cos(a), 1 + 0.25 * Math.sin(0.8 * t + i), 1.5 * Math.sin(a));
+      o.position.set(1.5 * Math.cos(a), 1.25 + 0.2 * Math.sin(0.8 * t + i), -0.9 + 0.4 * Math.sin(a)); // always behind him from the hero camera
       o.rotation.set(0.5 * t, 0.5 * t, 0);
     });
   });
@@ -385,51 +392,96 @@ function S5({ k }: { k: PropColors }) {
   );
 }
 
-// Shuttle: projectile with gravity + linear drag, launched so it lands exactly on the next racket.
-// His racket is at contact at phase BADMINTON_HIT_PHASE, the opponent's half a cycle later; the
-// racket heads are sampled (in set space) around those moments and cached, since the swings repeat.
+// Shuttle: his and the opponent's racket heads are measured (set space) at their contact phases.
+// Around each contact the shuttle rides the live racket head, then flies a drag-ballistic arc from the exact
+// release point to the other racket's contact point, blending onto the live racket for the last moments.
 const G = 9.8;
 const DRAG = 3;
-const T_FLIGHT = 1 / BADMINTON_HZ / 2;
-const E_T = 1 - Math.exp(-DRAG * T_FLIGHT);
-function S6({ k, racketRef }: { k: PropColors; racketRef: RefObject<Object3D | null> }) {
+const PERIOD = 1 / BADMINTON_HZ;
+const HOLD = 0.04 * PERIOD;
+const BLEND = 0.12;
+function S6({ k, racketRef, arrived }: { k: PropColors; racketRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
   const { g: setG, still } = useContext(SetCtx);
   const sh = useRef<Group>(null);
   const opp = useRef<Mesh>(null);
   const q = useMemo(() => new Quaternion(), []);
-  const c = useMemo(() => ({ h: new Vector3(-0.35, 1.85, 0.2), o: new Vector3(0.45, 1.6, 2.35), hd: 1, od: 1 }), []);
+  const c = useMemo(
+    () => ({ h: new Vector3(), o: new Vector3(), lh: new Vector3(), lo: new Vector3(), rel: new Vector3(), hm: false, om: false, hd: 1, od: 1, tr: 0, key: -1, seg: -1 }),
+    [],
+  );
   useSet((t, _, __, s) => {
     const g = sh.current;
     const set = setG.current;
     if (!g || !set) return;
-    // Sample both racket heads near their contact moments (closest frame wins), only once he has settled here
-    const ph = BADMINTON_HZ * t - BADMINTON_HIT_PHASE / TAU;
-    if (!still && Math.abs(s - 6) < 0.02) {
-      const sample = (ref: Object3D | null, u: number, v: Vector3, key: 'hd' | 'od') => {
-        const d = Math.min(fract(u), 1 - fract(u));
-        if (d > 0.1) c[key] = 1;
-        else if (ref && d < c[key]) {
-          c[key] = d;
-          ref.getWorldPosition(v);
-          set.worldToLocal(v);
-        }
-      };
-      sample(racketRef.current, ph, c.h, 'hd');
-      sample(opp.current, ph - 0.5, c.o, 'od');
+    if (still) {
+      g.position.set(0.05, 2, 1.3);
+      return;
     }
+    const rk = racketRef.current;
+    const op = opp.current;
+    if (Math.round(s) !== 6 || arrived.current < 1 || !rk || !op) {
+      g.visible = false;
+      return;
+    }
+    rk.getWorldPosition(c.lh);
+    set.worldToLocal(c.lh);
+    op.getWorldPosition(c.lo);
+    set.worldToLocal(c.lo);
+    const ph = BADMINTON_HZ * t - BADMINTON_HIT_PHASE / TAU;
     const cyc = Math.floor(ph);
-    let tau = (ph - cyc) / BADMINTON_HZ;
-    if (still) tau = T_FLIGHT / 2;
-    const back = tau >= T_FLIGHT;
-    const tt = back ? tau - T_FLIGHT : tau;
-    const a = back ? c.o : c.h;
-    const b = back ? c.h : c.o;
+    const u = (ph - cyc) * PERIOD;
+    // Measure each contact point at the closest frame to its contact phase
+    const dh = Math.min(fract(ph), 1 - fract(ph));
+    if (dh > 0.1) c.hd = 1;
+    else if (dh < c.hd) {
+      c.hd = dh;
+      c.h.copy(c.lh);
+      c.hm = true;
+    }
+    const dp = Math.min(fract(ph - 0.5), 1 - fract(ph - 0.5));
+    if (dp > 0.1) c.od = 1;
+    else if (dp < c.od) {
+      c.od = dp;
+      c.o.copy(c.lo);
+      c.om = true;
+    }
+    if (!c.hm || !c.om) {
+      g.visible = false;
+      return;
+    }
+    g.visible = true;
+    const half = PERIOD / 2;
+    const seg = u < HOLD ? 0 : u < half ? 1 : u < half + HOLD ? 2 : 3;
+    c.seg = seg;
+    if (seg === 0 || seg === 2) {
+      g.position.copy(seg === 0 ? c.lh : c.lo);
+      return;
+    }
+    const key = cyc * 2 + (seg === 3 ? 1 : 0);
+    const from = seg === 1 ? c.lh : c.lo;
+    if (c.key !== key) {
+      c.key = key;
+      c.rel.copy(from);
+      c.tr = t;
+    }
+    const to = seg === 1 ? c.o : c.h;
+    const live = seg === 1 ? c.lo : c.lh;
+    const tEnd = (cyc + BADMINTON_HIT_PHASE / TAU) / BADMINTON_HZ + (seg === 1 ? half : PERIOD);
+    const T = Math.max(tEnd - c.tr, 0.03);
+    const tt = Math.min(t - c.tr, T);
+    const a = c.rel;
     const e = Math.exp(-DRAG * tt);
-    const f = (1 - e) / E_T;
-    const vy0 = ((b.y - a.y + (G * T_FLIGHT) / DRAG) * DRAG) / E_T - G / DRAG;
-    g.position.set(a.x + (b.x - a.x) * f, a.y + ((vy0 + G / DRAG) * (1 - e)) / DRAG - (G * tt) / DRAG, a.z + (b.z - a.z) * f);
-    const hv = (DRAG * e) / E_T;
-    tmpV.set((b.x - a.x) * hv, (vy0 + G / DRAG) * e - G / DRAG, (b.z - a.z) * hv).normalize();
+    const eT = 1 - Math.exp(-DRAG * T);
+    const f = (1 - e) / eT;
+    const vy0 = ((to.y - a.y + (G * T) / DRAG) * DRAG) / eT - G / DRAG;
+    const w = MathUtils.smoothstep(tt, T - BLEND, T);
+    g.position.set(
+      a.x + (to.x - a.x) * f + w * (live.x - to.x),
+      a.y + ((vy0 + G / DRAG) * (1 - e)) / DRAG - (G * tt) / DRAG + w * (live.y - to.y),
+      a.z + (to.z - a.z) * f + w * (live.z - to.z),
+    );
+    const hv = (DRAG * e) / eT;
+    tmpV.set((to.x - a.x) * hv, (vy0 + G / DRAG) * e - G / DRAG, (to.z - a.z) * hv).normalize();
     g.quaternion.copy(q.setFromUnitVectors(Z, tmpV));
   });
   return (
@@ -493,7 +545,7 @@ function S7({ k }: { k: PropColors }) {
       if (!o) return;
       const u = fract(0.6 * t + i * 0.5);
       o.scale.setScalar(1 + 2 * u);
-      (o.material as MeshStandardMaterial).opacity = 1 - u;
+      (o.material as MeshToonMaterial).opacity = 1 - u;
     });
   });
   return (
@@ -505,12 +557,12 @@ function S7({ k }: { k: PropColors }) {
       </mesh>
       <instancedMesh ref={ropes} args={[undefined, undefined, 48]}>
         <sphereGeometry args={[0.035, 12, 8]} />
-        <meshStandardMaterial roughness={0.9} metalness={0} />
+        <meshToonMaterial gradientMap={toonGradient} />
       </instancedMesh>
       {[-0.2, 0.2].map((x, i) => (
         <mesh key={x} ref={(o) => void (rip.current[i] = o)} position={[x, 0.18, 0.9]} rotation={[Math.PI / 2, 0, 0]}>
           <torusGeometry args={[0.12, 0.01, 6, 24]} />
-          <meshStandardMaterial color={k.soft} roughness={0.9} metalness={0} transparent />
+          <meshToonMaterial color={k.soft} gradientMap={toonGradient} transparent />
         </mesh>
       ))}
       <B a={[0.4, 0.35, 0.35]} r={0.05} p={[0, 0.125, -2.05]} c={k.c} />
@@ -586,7 +638,7 @@ function S9({ k }: { k: PropColors }) {
   );
 }
 
-export default function Sets({ stage, palette, still, racketRef }: { stage: RefObject<number>; palette: Palette; still?: boolean; racketRef: RefObject<Object3D | null> }) {
+export default function Sets({ stage, palette, still, racketRef, arrived }: { stage: RefObject<number>; palette: Palette; still?: boolean; racketRef: RefObject<Object3D | null>; arrived: RefObject<number> }) {
   const k = palette.prop;
   const st = !!still;
   const S = (frame: number, stages: number[], children: ReactNode) => (
@@ -604,7 +656,7 @@ export default function Sets({ stage, palette, still, racketRef }: { stage: RefO
       {S(3, [3], <S3 k={k} />)}
       {S(4, [4], <S4 k={k} />)}
       {S(5, [5], <S5 k={k} />)}
-      {S(6, [6], <S6 k={k} racketRef={racketRef} />)}
+      {S(6, [6], <S6 k={k} racketRef={racketRef} arrived={arrived} />)}
       {S(7, [7], <S7 k={k} />)}
       {S(8, [8], <S8 pal={palette} stage={stage} />)}
       {S(9, [9], <S9 k={k} />)}

@@ -2,7 +2,9 @@
 import { useLayoutEffect, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { RoundedBox } from '@react-three/drei';
-import { DoubleSide, MathUtils, MeshStandardMaterial, Quaternion, Vector3, type Group, type Object3D } from 'three';
+import { DoubleSide, MathUtils, MeshToonMaterial, Quaternion, SphereGeometry, Vector3, type BufferGeometry, type Group, type Object3D } from 'three';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { toonGradient } from './toon';
 import type { Palette } from '@/lib/themes';
 import type { Outfit, PoseName } from '@/lib/stages';
 
@@ -34,7 +36,7 @@ const RZ = ci('root.z');
 const RX = ci('root.rx');
 
 const BREATH: Cycle = ['spine.x', 0.015, 0.25, 0];
-const REST: PoseDef['rot'] = { lUpperArm: [0.05, 0, 0.1], rUpperArm: [0.05, 0, -0.1], lForeArm: [-0.15, 0, 0], rForeArm: [-0.15, 0, 0] };
+const REST: PoseDef['rot'] = { lUpperArm: [0.05, 0, 0.06], rUpperArm: [0.05, 0, -0.06], lForeArm: [-0.15, 0, 0], rForeArm: [-0.15, 0, 0] };
 const SIT_ROOT = { y: -0.24 };
 const SIT: PoseDef['rot'] = { lThigh: [-1.57, 0, 0.06], rThigh: [-1.57, 0, -0.06], lShin: [1.57, 0, 0], rShin: [1.57, 0, 0] };
 
@@ -145,27 +147,27 @@ const LOOKS: Record<Outfit, Look> = {
   garden: { top: '#7A8B5C', pants: '#5D6B7A', shoes: '#5A3F2E', sole: '#2E2420', acc: '#B08D63', acc2: '#D8C29A', sleeve: 'short', neck: 'crew', legs: 'rolled', feet: 'boots', bits: ['apron', 'hat'] },
 };
 
-const clay = (o = {}) => new MeshStandardMaterial({ roughness: 0.9, metalness: 0, ...o });
+const toon = (o = {}) => new MeshToonMaterial({ gradientMap: toonGradient, ...o });
 const makeMats = () => ({
-  skin: new MeshStandardMaterial({ roughness: 0.8, metalness: 0, emissiveIntensity: 0.12 }),
-  hair: clay(),
-  beard: clay({ side: DoubleSide, transparent: true, opacity: 0.6, depthWrite: false }),
-  eyes: clay(),
-  white: clay({ color: '#FFFFFF' }),
-  teeth: clay({ color: '#F4EFE8' }),
-  mouth: clay(),
-  top: clay(),
-  alt: clay(),
-  pants: clay(),
-  shoes: clay(),
-  sole: clay(),
-  acc: clay(),
-  acc2: clay(),
-  a: clay(),
-  b: clay(),
-  c: clay(),
-  ink: clay(),
-  soft: clay({ transparent: true, opacity: 0.35, side: DoubleSide }),
+  skin: toon(),
+  stubble: toon(),
+  hair: toon(),
+  beard: toon(),
+  eyes: toon(),
+  teeth: toon({ color: '#F4EFE8' }),
+  mouth: toon(),
+  top: toon(),
+  alt: toon(),
+  pants: toon(),
+  shoes: toon(),
+  sole: toon(),
+  acc: toon(),
+  acc2: toon(),
+  a: toon(),
+  b: toon(),
+  c: toon(),
+  ink: toon(),
+  soft: toon({ transparent: true, opacity: 0.35, side: DoubleSide }),
 });
 type Mats = ReturnType<typeof makeMats>;
 type RefFn = (n: Joint) => (g: Group | null) => void;
@@ -173,9 +175,13 @@ type RefFn = (n: Joint) => (g: Group | null) => void;
 function Arm({ side, r, m, look, children }: { side: 'l' | 'r'; r: RefFn; m: Mats; look: Look; children?: ReactNode }) {
   const s = side === 'l' ? 1 : -1;
   const { sleeve } = look;
+  // Pivot overlaps the torso edge (half-width 0.165); the cap keeps raised arms joined to the body
   return (
-    <group ref={r(`${side}Shoulder`)} position={[0.18 * s, 0.33, 0]}>
-      <group ref={r(`${side}UpperArm`)} position={[0.03 * s, 0, 0]}>
+    <group ref={r(`${side}Shoulder`)} position={[0.195 * s, 0.33, 0]}>
+      <mesh material={sleeve === 'none' ? m.skin : m.top}>
+        <sphereGeometry args={[sleeve === 'short' ? 0.064 : sleeve === 'none' ? 0.052 : 0.06, 20, 14]} />
+      </mesh>
+      <group ref={r(`${side}UpperArm`)}>
         {sleeve === 'short' && (
           <mesh position={[0, -0.045, 0]} material={m.top}>
             <capsuleGeometry args={[0.056, 0.06, 6, 16]} />
@@ -265,7 +271,7 @@ function Leg({ side, r, m, look }: { side: 'l' | 'r'; r: RefFn; m: Mats; look: L
 function Top({ m, look }: { m: Mats; look: Look }) {
   const { neck, bits } = look;
   const bare = neck === 'none';
-  const flaps = (mat: MeshStandardMaterial, z: number) =>
+  const flaps = (mat: MeshToonMaterial, z: number) =>
     [1, -1].map((s) => (
       <RoundedBox key={s} args={[0.075, 0.045, 0.014]} radius={0.006} smoothness={4} position={[0.04 * s, 0.405, z]} rotation={[-0.5, 0.35 * s, -0.55 * s]} material={mat} />
     ));
@@ -280,7 +286,7 @@ function Top({ m, look }: { m: Mats; look: Look }) {
       />
       {(neck === 'crew' || neck === 'sweater') && (
         <mesh position={[0, 0.405, 0]} rotation={[PI / 2, 0, 0]} material={m.top}>
-          <torusGeometry args={[0.062, 0.018, 8, 24]} />
+          <torusGeometry args={[0.052, 0.016, 8, 24]} />
         </mesh>
       )}
       {neck === 'sweater' && flaps(m.alt, 0.07)}
@@ -325,62 +331,119 @@ function Top({ m, look }: { m: Mats; look: Look }) {
   );
 }
 
-// Face in HC space (head sphere r 0.235, y×1.08); HC is scaled down/oval by the caller
+// Head: unit sphere reshaped into an oval with a defined jaw and a blunt, slightly forward chin (metres, head centre origin)
+const HX = 0.1;
+const HY = 0.14;
+const HZ = 0.112;
+const shapeHead = (v: Vector3) => {
+  const t = v.y < 0 ? v.y * v.y : 0;
+  const y = v.y < 0 ? -(Math.abs(v.y) ** 0.75) : v.y;
+  return v.set(v.x * HX * (1 - 0.22 * t), y * HY, v.z * HZ * (1 - (v.z > 0 ? 0.06 : 0.3) * t) + 0.014 * t);
+};
+function headGeometry(src: BufferGeometry, grow: number) {
+  const p = src.attributes.position;
+  const v = new Vector3();
+  for (let i = 0; i < p.count; i++) {
+    shapeHead(v.fromBufferAttribute(p, i)).multiplyScalar(grow);
+    p.setXYZ(i, v.x, v.y, v.z);
+  }
+  src.deleteAttribute('normal');
+  src.deleteAttribute('uv');
+  const g = mergeVertices(src);
+  g.computeVertexNormals();
+  return g;
+}
+// Stubble: front wedge of the sphere below a plane tilted 0.49 rad (sideburns → jaw → under the lip), just off the skin
+const STUBBLE_GEO = headGeometry(new SphereGeometry(1, 64, 24, PI / 2 - 1.6, 3.2, 1.75, PI - 1.75).rotateX(0.49), 1.006);
+const HEAD_GEO = headGeometry(new SphereGeometry(1, 64, 48), 1);
+// Short sides: cap tilted back so the hairline sits high at the temples and low at the nape
+const HAIR_GEO = headGeometry(new SphereGeometry(1, 48, 24, 0, TAU, 0, 1.25).rotateX(-0.45), 1.05);
+
+// Locks: flattened ellipsoids [x, y, z, sx, sy, sz, rx, ry, rz] whose front ends make the hairline,
+// main swoop lifting up toward his left with a pointed tip, notch between the front two
+const LOCKS: [number, number, number, number, number, number, number, number, number][] = [
+  [0.022, 0.12, 0.05, 0.06, 0.024, 0.085, -0.35, 0.5, -0.2],
+  [-0.035, 0.113, 0.055, 0.045, 0.021, 0.07, -0.25, 0.35, 0],
+  [0, 0.136, -0.01, 0.085, 0.022, 0.095, -0.1, 0, 0],
+];
+// Accessories were authored around a 0.235 ball head; this maps them onto the new head
+const ACC_SCALE: [number, number, number] = [0.404, 0.583, 0.468];
+
 function Face({ m, look }: { m: Mats; look: Look }) {
   const hat = look.bits.includes('hat');
   return (
     <>
-      <mesh scale={[1, 1.08, 1]} material={m.skin}>
-        <sphereGeometry args={[0.235, 40, 28]} />
-      </mesh>
-      {/* Short sides: tight cap, hairline high at the temples */}
-      <mesh rotation={[-0.3, 0, 0]} scale={[1, 1.12, 1.03]} material={m.hair}>
-        <sphereGeometry args={[0.241, 40, 20, 0, TAU, 0, 1.15]} />
-      </mesh>
-      {/* Textured top falling slightly forward */}
+      <mesh geometry={HEAD_GEO} material={m.skin} />
+      <mesh geometry={STUBBLE_GEO} material={m.stubble} />
+      <mesh geometry={HAIR_GEO} material={m.hair} />
       {!hat &&
-        TUFTS.map(([x, y, z, sx, sy, sz, rx, rz], i) => (
-          <mesh key={i} position={[x, y, z]} rotation={[rx, 0, rz]} scale={[sx, sy, sz]} material={m.hair}>
-            <sphereGeometry args={[1, 20, 12]} />
+        LOCKS.map(([x, y, z, sx, sy, sz, rx, ry, rz], i) => (
+          <mesh key={i} position={[x, y, z]} rotation={[rx, ry, rz]} scale={[sx, sy, sz]} material={m.hair}>
+            <sphereGeometry args={[1, 24, 16]} />
           </mesh>
         ))}
+      {!hat && (
+        <mesh position={[0.055, 0.138, 0.1]} rotation={[1.09, 0, -0.52]} scale={[1, 1, 0.5]} material={m.hair}>
+          <coneGeometry args={[0.024, 0.07, 16]} />
+        </mesh>
+      )}
       {[1, -1].map((s) => (
         <group key={s}>
-          <RoundedBox args={[0.022, 0.13, 0.045]} radius={0.01} smoothness={4} position={[0.227 * s, 0.05, 0.035]} material={m.hair} />
-          <mesh position={[0.232 * s, -0.01, -0.01]} scale={[0.45, 0.9, 0.7]} material={m.skin}>
-            <sphereGeometry args={[0.055, 24, 16]} />
+          <RoundedBox args={[0.01, 0.045, 0.022]} radius={0.004} smoothness={2} position={[0.09 * s, 0.022, 0.012]} material={m.hair} />
+          <mesh position={[0.094 * s, -0.004, -0.008]} scale={[0.011, 0.028, 0.02]} material={m.skin}>
+            <sphereGeometry args={[1, 16, 12]} />
           </mesh>
-          <mesh position={[0.08 * s, 0.025, 0.222]} scale={[1, 1.1, 0.6]} material={m.eyes}>
-            <sphereGeometry args={[0.031, 24, 16]} />
+          {/* Eye: dark pupil under a heavy skin lid with a lash line */}
+          <mesh position={[0.036 * s, 0.002, 0.101]} scale={[0.0105, 0.013, 0.005]} material={m.eyes}>
+            <sphereGeometry args={[1, 16, 12]} />
           </mesh>
-          <mesh position={[0.08 * s + 0.008, 0.036, 0.235]} material={m.white}>
-            <sphereGeometry args={[0.009, 12, 8]} />
+          <mesh position={[0.036 * s, 0.0105, 0.1035]} scale={[0.016, 0.0105, 0.0065]} material={m.skin}>
+            <sphereGeometry args={[1, 16, 12]} />
           </mesh>
-          <RoundedBox args={[0.1, 0.028, 0.03]} radius={0.013} smoothness={4} position={[0.083 * s, 0.09, 0.215]} rotation={[-0.2, 0, -0.04 * s]} material={m.hair} />
+          <mesh position={[0.036 * s, 0.001, 0.109]} rotation={[0, 0, PI / 2 + 0.06 * s]} material={m.eyes}>
+            <capsuleGeometry args={[0.0022, 0.016, 4, 8]} />
+          </mesh>
+          {/* Brow: chunky, tapered, outer end dipping */}
+          <mesh position={[0.037 * s, 0.031, 0.103]} rotation={[-0.25, 0, (PI / 2 + 0.08) * s]} scale={[1, 1, 0.6]} material={m.hair}>
+            <cylinderGeometry args={[0.0095, 0.0045, 0.048, 12]} />
+          </mesh>
         </group>
       ))}
-      <mesh position={[0, -0.035, 0.232]} scale={[0.9, 1.1, 1]} material={m.skin}>
-        <sphereGeometry args={[0.032, 24, 16]} />
+      {/* Nose: soft wedge with a single dark stroke */}
+      <mesh position={[0, -0.022, 0.106]} rotation={[-0.25, 0, 0]} scale={[0.011, 0.026, 0.016]} material={m.skin}>
+        <sphereGeometry args={[1, 16, 12]} />
       </mesh>
-      {/* Stubble: thin see-through shell just off the skin below a tilted plane (sideburns → jaw → under the mouth) */}
-      <group scale={[1, 1.08, 1]}>
-        <mesh rotation={[0.587, 0, 0]} material={m.beard}>
-          <sphereGeometry args={[0.239, 40, 20, PI / 2 - 1.42, 2.84, 1.709, 1.35]} />
+      <mesh position={[-0.01, -0.024, 0.115]} rotation={[0, 0, -0.15]} material={m.eyes}>
+        <capsuleGeometry args={[0.0017, 0.022, 4, 8]} />
+      </mesh>
+      <mesh position={[-0.004, -0.039, 0.119]} rotation={[0, 0, PI / 2 - 0.2]} material={m.eyes}>
+        <capsuleGeometry args={[0.0017, 0.008, 4, 8]} />
+      </mesh>
+      {/* Grin: dark rim, white teeth, thin mustache on top */}
+      <group position={[0, -0.07, 0.1]} rotation={[-0.3, 0, 0]}>
+        <mesh scale={[0.026, 0.015, 0.006]} material={m.mouth}>
+          <sphereGeometry args={[1, 20, 10, 0, TAU, PI / 2, PI / 2]} />
+        </mesh>
+        <mesh position={[0, 0.001, 0.002]} scale={[0.0225, 0.011, 0.006]} material={m.teeth}>
+          <sphereGeometry args={[1, 20, 10, 0, TAU, PI / 2, PI / 2]} />
+        </mesh>
+        <mesh position={[0, 0.005, 0.004]} rotation={[0, 0, PI / 2]} material={m.beard}>
+          <capsuleGeometry args={[0.0058, 0.032, 4, 8]} />
         </mesh>
       </group>
-      <mesh position={[0, -0.1, 0.222]} rotation={[0, 0, PI / 2]} material={m.beard}>
-        <capsuleGeometry args={[0.011, 0.09, 4, 12]} />
-      </mesh>
-      {/* Grin: dark mouth, teeth, flat lower-lip arc */}
-      <mesh position={[0, -0.14, 0.195]} scale={[0.064, 0.026, 0.012]} material={m.mouth}>
-        <sphereGeometry args={[1, 24, 16]} />
-      </mesh>
-      <mesh position={[0, -0.135, 0.201]} scale={[0.054, 0.017, 0.01]} material={m.teeth}>
-        <sphereGeometry args={[1, 24, 16]} />
-      </mesh>
-      <mesh position={[0, -0.052, 0.195]} rotation={[0, 0, 1.5 * PI - 0.69]} material={m.mouth}>
-        <torusGeometry args={[0.11, 0.008, 8, 24, 1.38]} />
-      </mesh>
+      {look.bits.includes('goggles') && (
+        <group position={[0, 0.05, 0.004]} rotation={[-0.15, 0, 0]}>
+          <mesh rotation={[PI / 2, 0, 0]} scale={[1, 1.15, 1]} material={m.acc2}>
+            <torusGeometry args={[0.1, 0.005, 6, 32]} />
+          </mesh>
+          {[1, -1].map((s) => (
+            <mesh key={s} position={[0.033 * s, 0, 0.1]} rotation={[PI / 2, 0, 0]} material={m.acc}>
+              <sphereGeometry args={[0.019, 16, 8, 0, TAU, 0, PI / 2]} />
+            </mesh>
+          ))}
+        </group>
+      )}
+      <group scale={ACC_SCALE}>
       {hat && (
         <group position={[0, 0.2, 0]} rotation={[-0.08, 0, 0]}>
           <mesh material={m.acc2}>
@@ -399,31 +462,10 @@ function Face({ m, look }: { m: Mats; look: Look }) {
           <torusGeometry args={[0.2, 0.02, 8, 32]} />
         </mesh>
       )}
-      {look.bits.includes('goggles') && (
-        <group position={[0, 0.15, 0]} rotation={[-0.25, 0, 0]}>
-          <mesh rotation={[PI / 2, 0, 0]} material={m.acc2}>
-            <torusGeometry args={[0.222, 0.01, 6, 32]} />
-          </mesh>
-          {[1, -1].map((s) => (
-            <mesh key={s} position={[0.07 * s, 0, 0.21]} material={m.acc}>
-              <sphereGeometry args={[0.04, 16, 12, 0, TAU, 0, PI / 2]} />
-            </mesh>
-          ))}
-        </group>
-      )}
+      </group>
     </>
   );
 }
-
-// [x, y, z, sx, sy, sz, rx, rz]: flattened blobs over the cap, front row tipped forward
-const TUFTS: [number, number, number, number, number, number, number, number][] = [
-  [-0.085, 0.215, 0.13, 0.075, 0.032, 0.09, 0.65, 0.25],
-  [0.005, 0.23, 0.145, 0.08, 0.035, 0.095, 0.7, 0],
-  [0.09, 0.215, 0.125, 0.075, 0.032, 0.09, 0.65, -0.3],
-  [-0.08, 0.26, 0.03, 0.09, 0.035, 0.11, 0.3, 0.15],
-  [0.075, 0.265, 0.04, 0.09, 0.035, 0.11, 0.3, -0.15],
-  [0, 0.265, -0.07, 0.11, 0.035, 0.1, 0, 0],
-];
 
 const POP = 0.35;
 
@@ -446,7 +488,7 @@ export default function Avatar({ pose, outfit, palette, still, racketRef }: { po
     const a = palette.avatar;
     const p = palette.prop;
     m.skin.color.set(a.skin);
-    m.skin.emissive.set(a.skinGlow);
+    m.stubble.color.set(a.skin).multiplyScalar(0.55);
     m.hair.color.set(a.hair);
     m.beard.color.set(a.beard);
     m.eyes.color.set(a.eyes);
@@ -516,14 +558,14 @@ export default function Avatar({ pose, outfit, palette, still, racketRef }: { po
         <group ref={r('spine')} position={[0, 0.06, 0]}>
           <Top m={m} look={look} />
           <group ref={r('neck')} position={[0, 0.4, 0]}>
-            <mesh position={[0, 0.03, 0]} material={m.skin}>
-              <cylinderGeometry args={[0.05, 0.055, 0.12, 16]} />
+            <mesh position={[0, 0.04, 0]} material={m.skin}>
+              <cylinderGeometry args={[0.044, 0.05, 0.14, 16]} />
             </mesh>
-            <group ref={r('head')} position={[0, 0.08, 0]}>
-              {/* Smaller, oval head on a slimmer body */}
-              <group position={[0, 0.21, 0]} scale={[0.78, 0.88, 0.82]}>
+            <group ref={r('head')} position={[0, 0.09, 0]}>
+              {/* Head ≈ 1/5 of height */}
+              <group position={[0, 0.115, 0.005]}>
                 <Face m={m} look={look} />
-                <group ref={h('headset')}>
+                <group ref={h('headset')} scale={ACC_SCALE}>
                   {/* Stretched to clear the hair */}
                   <mesh position={[0, 0.02, 0]} scale={[1, 1.15, 1]} material={m.ink}>
                     <torusGeometry args={[0.25, 0.018, 8, 24, PI]} />

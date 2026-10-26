@@ -33,3 +33,4 @@ build
 .open-next
 .wrangler
 .dev.vars*
+*.tsbuildinfo

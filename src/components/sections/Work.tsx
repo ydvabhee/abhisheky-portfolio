@@ -1,156 +1,69 @@
 'use client';
-import React, { useRef } from 'react';
-import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Calendar, MapPin, ExternalLink } from 'lucide-react';
-import metadata from '../../data/metadata.json';
+import { motion } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
+import metadata from '@/data/metadata.json';
+import SectionLabel from '../ui/SectionLabel';
 
-const Work: React.FC = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start end", "end start"]
-  });
+const { work } = metadata;
+const pad = (n: number) => String(n).padStart(2, '0');
 
-  // Create a smooth drawing effect for the path
-  const pathLength = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
+export default function Work() {
   return (
-    <section id="work" className="py-32 px-4 md:px-8 bg-white dark:bg-black text-black dark:text-white relative overflow-hidden transition-colors duration-500 border-t border-black/10 dark:border-white/10">
-      <div className="max-w-8xl mx-auto relative">
-        
-        {/* Section Title */}
-        <div className="flex flex-col items-center mb-20 relative z-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-[12vw] md:text-[8vw] font-black tracking-tighter leading-none uppercase"
-          >
-            {metadata.work.title}
-          </motion.h2>
-          <p className="mt-4 text-xs font-mono uppercase tracking-widest opacity-50">A Journey of Growth</p>
-        </div>
-
-        {/* The Glowing Path (SVG) */}
-        <div className="absolute left-[28px] md:left-1/2 top-[180px] bottom-0 w-[4px] -translate-x-1/2 h-full z-0">
-          {/* Background Track */}
-          <div className="absolute top-0 left-0 w-full h-full bg-black/5 dark:bg-white/10 rounded-full" />
-          
-          {/* Glowing Fill */}
-          <motion.div 
-            style={{ height: useTransform(pathLength, [0, 1], ["0%", "100%"]) }}
-            className="absolute top-0 left-0 w-full bg-black dark:bg-white rounded-full shadow-[0_0_15px_rgba(0,0,0,0.3)] dark:shadow-[0_0_15px_rgba(255,255,255,0.5)]"
-          />
-        </div>
-
-        {/* Experience Nodes */}
-        <div ref={containerRef} className="space-y-32 relative z-10">
-          {metadata.work.experiences.map((exp, index) => (
-            <TimelineItem key={exp.id} experience={exp} index={index} />
-          ))}
-        </div>
-
+    <section id="work" className="relative px-6 pt-32 md:px-12">
+      <div className="mx-auto max-w-[1600px]">
+        <SectionLabel n="02">{work.title}</SectionLabel>
+        <h2 className="mt-6 text-[clamp(2.5rem,6vw,6rem)] font-semibold leading-[0.95] tracking-[-0.05em]">
+          A journey of <span className="font-serif font-normal italic tracking-[-0.02em] text-accent">growth.</span>
+        </h2>
       </div>
+
+      {/* Each card is a camera stop for the 3D scene */}
+      {work.experiences.map((exp, i) => (
+        <article key={exp.id} data-scene className="flex min-h-svh items-center py-6 md:py-16">
+          <div className={`mx-auto flex w-full max-w-[1600px] ${i % 2 ? 'md:justify-end' : ''}`}>
+            <motion.div
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-15%' }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              className="glass w-full rounded-3xl md:w-[min(46%,640px)] md:p-10 p-5"
+            >
+              <div className="flex justify-between gap-4 font-mono text-xs uppercase tracking-[0.2em] text-fg/50">
+                <span>
+                  {pad(i + 1)} / {pad(work.experiences.length)}
+                </span>
+                <span>{exp.period}</span>
+              </div>
+
+              <h3 className="mt-4 text-3xl font-semibold tracking-[-0.04em] md:mt-8 md:text-5xl">
+                <a href={exp.url} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 transition hover:text-accent">
+                  {exp.company}
+                  <ArrowUpRight size={28} className="opacity-40 transition group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-100" />
+                </a>
+              </h3>
+              <p className="mt-2 font-serif text-2xl italic text-accent">{exp.role}</p>
+              <p className="mt-1 font-mono text-xs uppercase tracking-[0.2em] text-fg/40">{exp.location}</p>
+
+              <ul className="mt-4 space-y-2 text-sm leading-snug md:mt-8 md:space-y-3 md:text-base md:leading-relaxed text-fg/70">
+                {exp.description.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+
+              <ul className="mt-4 flex flex-wrap gap-1.5 md:mt-8 md:gap-2">
+                {exp.tech.map((tech) => (
+                  <li key={tech} className="rounded-full border border-fg/10 px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-fg/60">
+                    {tech}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </article>
+      ))}
     </section>
   );
-};
-
-type Experience = typeof metadata.work.experiences[0];
-
-const TimelineItem: React.FC<{ experience: Experience, index: number }> = ({ experience, index }) => {
-  const isEven = index % 2 === 0;
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-      className={`relative flex flex-col md:flex-row gap-12 md:gap-24 ${isEven ? 'md:flex-row-reverse' : ''}`}
-    >
-      
-      {/* Central Node (The "Station") */}
-      <div className="absolute left-[28px] md:left-1/2 top-8 w-6 h-6 -translate-x-1/2 flex items-center justify-center z-20">
-         <motion.div 
-           initial={{ scale: 0 }}
-           whileInView={{ scale: 1 }}
-           viewport={{ once: true }}
-           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-           className="w-4 h-4 rounded-full bg-white dark:bg-black border-[4px] border-black dark:border-white shadow-[0_0_0_4px_rgba(255,255,255,0.5)] dark:shadow-[0_0_0_4px_rgba(0,0,0,0.5)]"
-         />
-      </div>
-
-      {/* Content Card */}
-      <div className={`flex-1 pl-20 md:pl-0 ${isEven ? 'md:pr-12 md:text-right' : 'md:pl-12'}`}>
-         
-         {/* Date Label (Floating above) */}
-         <div className={`text-xs font-mono uppercase tracking-widest opacity-50 mb-4 flex items-center gap-2 ${isEven ? 'md:justify-end' : ''}`}>
-            <Calendar size={12} />
-            <span>{experience.period}</span>
-         </div>
-
-         {/* Main Card */}
-         <div className="group relative bg-zinc-50 dark:bg-zinc-900/50 border border-black/5 dark:border-white/5 p-8 rounded-2xl hover:border-black/20 dark:hover:border-white/20 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1">
-            
-            {/* Connector Line (Desktop) */}
-            <div className={`hidden md:block absolute top-8 w-12 h-[1px] bg-black/10 dark:bg-white/10 ${isEven ? '-right-12' : '-left-12'}`} />
-
-            <div className={`flex flex-col gap-2 ${isEven ? 'md:items-end' : ''}`}>
-               {experience.url ? (
-                 <a 
-                   href={experience.url} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className={`group/link flex items-center gap-2 w-fit`}
-                 >
-                   <h3 className="text-3xl font-black tracking-tight uppercase group-hover/link:text-zinc-600 dark:group-hover/link:text-zinc-400 transition-colors">
-                     {experience.company}
-                   </h3>
-                   <ExternalLink size={18} className={`opacity-100 -translate-y-1 `} />
-                 </a>
-               ) : (
-                 <h3 className="text-3xl font-black tracking-tight uppercase">{experience.company}</h3>
-               )}
-               <div className="flex items-center gap-2 text-sm font-medium opacity-60">
-                 <span>{experience.role}</span>
-                 <span>•</span>
-                 <span className="flex items-center gap-1"><MapPin size={12} /> {experience.location}</span>
-               </div>
-            </div>
-
-            <ul className={`mt-6 space-y-3 opacity-90 leading-relaxed text-sm marker:text-black/40 dark:marker:text-white/40 ${
-              isEven 
-                ? 'text-left list-disc pl-5 md:text-right md:list-none md:pl-0' 
-                : 'text-left list-disc pl-5'
-            }`}>
-               {experience.description.map((point, i) => (
-                 <li key={i} className={`pl-1 ${isEven ? 'md:pl-0 md:flex md:flex-row-reverse md:items-start md:gap-2' : ''}`}>
-                   {isEven && <span className="hidden md:block text-black/40 dark:text-white/40 mt-1.5">•</span>}
-                   <span className="flex-1">{point}</span>
-                 </li>
-               ))}
-            </ul>
-
-            <div className={`mt-8 flex flex-wrap gap-2 ${isEven ? 'md:justify-end' : ''}`}>
-               {experience.tech.map((tech, i) => (
-                  <span key={i} className="px-3 py-1 text-[10px] font-bold border border-black/10 dark:border-white/10 rounded-full uppercase tracking-wider bg-white dark:bg-black/50">
-                    {tech}
-                  </span>
-               ))}
-            </div>
-
-         </div>
-      </div>
-
-      {/* Empty space for alignment */}
-      <div className="hidden md:block flex-1" />
-
-    </motion.div>
-  );
-};
-
-export default Work;
+}

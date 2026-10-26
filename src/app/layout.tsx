@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/context/ThemeContext";
 import metadataJson from "@/data/metadata.json";
+
+const sans = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
+const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-instrument" });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://abhisheky.me'),
@@ -15,11 +19,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="bg-white dark:bg-black text-black dark:text-white antialiased">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+    <html lang="en" data-theme="clay" suppressHydrationWarning className={`${sans.variable} ${mono.variable} ${serif.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.theme=localStorage.getItem('theme')||'clay'}catch(e){}" }} />
+      </head>
+      <body className="font-sans antialiased">
+        {children}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

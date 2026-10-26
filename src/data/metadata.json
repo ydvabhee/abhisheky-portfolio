@@ -8,6 +8,7 @@
     "links": [
       { "label": "ABOUT", "href": "/#about" },
       { "label": "WORK", "href": "/#work" },
+      { "label": "HOBBIES", "href": "/#hobbies" },
       { "label": "CONTACT", "href": "/#contact" }
     ],
     "resume": {
@@ -115,6 +116,15 @@
         ],
         "tech": ["React.js", "Next.js", "Node.js", "MongoDB", "PostgreSQL", "Docker", "Typescript"]
       }
+    ]
+  },
+  "hobbies": {
+    "title": "Beyond Work",
+    "headline": "Off the clock.",
+    "items": [
+      { "name": "Badminton", "line": "I play most weekends. Quick feet, quicker decisions." },
+      { "name": "Swimming", "line": "Laps clear my head. Some of my best ideas show up mid-lane." },
+      { "name": "Gardening", "line": "Where it all started for me: soil, patience, and watching things grow." }
     ]
   },
   "contact": {

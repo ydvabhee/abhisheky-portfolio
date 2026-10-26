@@ -1,116 +1,86 @@
 'use client';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ThemeToggle } from '../ui/ThemeToggle';
-import { Menu, X, ExternalLink } from 'lucide-react';
-import metadata from '../../data/metadata.json';
+import { ArrowUpRight, Menu, X } from 'lucide-react';
+import metadata from '@/data/metadata.json';
+import { sentenceCase } from '@/lib/utils';
+import { THEMES, setTheme, useThemeName } from '@/lib/themes';
 
-const BoldLink: React.FC<{ children: string }> = ({ children }) => {
+const { logo, links, resume } = metadata.navbar;
+
+function ThemeSwitcher({ className = '' }: { className?: string }) {
+  const active = useThemeName();
   return (
-    <span className="inline-grid grid-cols-1 grid-rows-1 text-center">
-      {/* Invisible bold text to reserve width */}
-      <span className="invisible font-black row-start-1 col-start-1">{children}</span>
-      {/* Visible text that changes weight */}
-      <span className="visible font-medium group-hover:font-black row-start-1 col-start-1 transition-all duration-300">{children}</span>
-    </span>
-  );
-};
-
-const Navbar: React.FC<{ startAnimation?: boolean }> = ({ startAnimation = true }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <>
-      <motion.nav 
-        initial={{ y: -100 }}
-        animate={startAnimation ? { y: 0 } : { y: -100 }}
-        className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 md:px-8 py-6 bg-white/80 dark:bg-black/80 backdrop-blur-sm text-black dark:text-white transition-colors duration-300 border-b border-black/5 dark:border-white/5"
-      >
-        <div className="flex items-center gap-2 z-50">
-          <div className="rounded-full overflow-hidden w-10 h-10 relative">
-            <Image 
-              src={metadata.navbar.logo} 
-              alt="Logo" 
-              fill
-              className="object-cover"
-              sizes="40px"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Desktop Menu */}
-        <div className="hidden md:flex items-center space-x-8">
-          <div className="flex space-x-8 text-sm font-medium">
-            {metadata.navbar.links.map((link, index) => (
-              <a key={index} href={link.href} className="group flex flex-col items-center">
-                <BoldLink>{link.label}</BoldLink>
-              </a>
-            ))}
-            <a 
-              href={metadata.navbar.resume.href}
-              target="_blank"
-              rel="noopener noreferrer" 
-              className="group flex items-center gap-2"
-            >
-              <ExternalLink size={16} />
-              <BoldLink>{metadata.navbar.resume.label}</BoldLink>
-            </a>
-          </div>
-          <ThemeToggle />
-        </div>
-
-        {/* Mobile Toggle */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)} 
-          className="md:hidden z-50 p-2"
-          aria-label="Toggle Menu"
+    <div className={`flex items-center gap-2 ${className}`}>
+      {Object.values(THEMES).map((t) => (
+        <button
+          key={t.name}
+          onClick={() => setTheme(t.name)}
+          aria-label={`Theme: ${t.label}`}
+          aria-pressed={active === t.name}
+          className={`grid h-[18px] w-[18px] place-items-center rounded-full border transition ${active === t.name ? 'border-fg ring-2 ring-fg/25' : 'border-fg/20 hover:border-fg/50'}`}
+          style={{ background: t.swatch[0] }}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: t.swatch[1] }} />
         </button>
-      </motion.nav>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white dark:bg-black text-black dark:text-white pt-24 px-6 md:hidden flex flex-col gap-8 transition-colors duration-300"
-          >
-            <div className="flex flex-col gap-6 text-2xl font-black uppercase tracking-tighter">
-              {metadata.navbar.links.map((link, index) => (
-                <a 
-                  key={index} 
-                  href={link.href} 
-                  onClick={() => setIsOpen(false)}
-                  className="border-b border-black/10 dark:border-white/10 pb-4"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <a 
-                href={metadata.navbar.resume.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setIsOpen(false)}
-                className="flex items-center gap-2 border-b border-black/10 dark:border-white/10 pb-4"
-              >
-                <ExternalLink size={24} />
-                {metadata.navbar.resume.label}
-              </a>
-            </div>
-            <div className="flex justify-between items-center mt-4">
-              <span className="text-sm font-mono opacity-50">Switch Theme</span>
-              <ThemeToggle />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+      ))}
+    </div>
   );
-};
+}
 
-export default Navbar;
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 md:px-8">
+      <nav className="glass mx-auto flex max-w-[1600px] items-center justify-between rounded-full p-2">
+        <a href="/#top" className="flex items-center gap-3 pr-2">
+          <Image src={logo} alt="Home" width={36} height={36} className="rounded-full" priority />
+          <span className="hidden font-mono text-xs uppercase tracking-[0.2em] text-fg/70 sm:block">
+            {metadata.hero.firstName} {metadata.hero.middleName} {metadata.hero.lastName}
+          </span>
+        </a>
+
+        <div className="hidden items-center gap-1 md:flex">
+          {links.map((link) => (
+            <a key={link.href} href={link.href} className="rounded-full px-4 py-2 text-sm text-fg/70 transition hover:bg-fg/5 hover:text-fg">
+              {sentenceCase(link.label)}
+            </a>
+          ))}
+          <ThemeSwitcher className="mx-2" />
+          <a
+            href={resume.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ml-2 flex items-center gap-1 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-fg transition hover:brightness-110"
+          >
+            {sentenceCase(resume.label)} <ArrowUpRight size={14} />
+          </a>
+        </div>
+
+        <button onClick={() => setOpen(!open)} className="p-2 md:hidden" aria-label="Toggle menu" aria-expanded={open}>
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </nav>
+
+      {open && (
+        <div className="glass mt-2 flex flex-col gap-1 rounded-3xl p-4 md:hidden">
+          {links.map((link) => (
+            <a key={link.href} href={link.href} onClick={() => setOpen(false)} className="rounded-2xl px-4 py-3 text-2xl font-medium tracking-tight">
+              {sentenceCase(link.label)}
+            </a>
+          ))}
+          <ThemeSwitcher className="px-4 py-3" />
+          <a
+            href={resume.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 flex items-center justify-center gap-1 rounded-full bg-accent px-4 py-3 font-medium text-accent-fg"
+          >
+            {sentenceCase(resume.label)} <ArrowUpRight size={16} />
+          </a>
+        </div>
+      )}
+    </header>
+  );
+}
